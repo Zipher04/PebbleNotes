@@ -27,7 +27,7 @@ enum {
 	KEY_OPTION_VALUE = 46, // int or bool
 	KEY_ERROR = 50, // string: error text
 };
-// Message codes
+// Message codes in KEY_CODE
 enum {
 	CODE_READY = 0, // JS side is ready (and have access token)
 	CODE_GET = 10, // get some info
@@ -54,6 +54,8 @@ enum {
 enum {
 	OPTION_LARGE_FONT = 1,
 	OPTION_TASK_ACTIONS_POSITION = 2,
+	PERSIST_ACCESS_TOKEN = 3, // string
+	PERSIST_REFRESH_TOKEN = 4, // string
 };
 
 #endif

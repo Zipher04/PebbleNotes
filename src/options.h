@@ -1,6 +1,9 @@
 #ifndef _OPTIONS_H
 #define _OPTIONS_H
 
+/**
+ * Read font and action button position
+ */
 void options_init();
 void options_deinit();
 void options_update(int key, int val);

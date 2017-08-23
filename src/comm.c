@@ -131,20 +131,21 @@ void comm_create_task(int listId, char* title, char* notes) {
 	app_message_outbox_send();
 }
 
+// Send saved "refresh token" and "access token" if possible
 void comm_retrieve_tokens() {
 	// loading
 	char *szAccessToken = NULL, *szRefreshToken = NULL;
 	int size;
-	if(persist_exists(KEY_REFRESH_TOKEN)) { // use the same keys for appMessage and for storage
-		size = persist_get_size(KEY_REFRESH_TOKEN);
+	if(persist_exists(PERSIST_REFRESH_TOKEN)) { // use the same keys for appMessage and for storage
+		size = persist_get_size(PERSIST_REFRESH_TOKEN);
 		szRefreshToken = malloc(size);
-		persist_read_string(KEY_REFRESH_TOKEN, szRefreshToken, size);
+		persist_read_string(PERSIST_REFRESH_TOKEN, szRefreshToken, size);
 		LOG("got refresh token: %s", szRefreshToken);
 
-		if(persist_exists(KEY_ACCESS_TOKEN)) { // only try access token if we have refresh token, as AT alone is not useful
-			size = persist_get_size(KEY_ACCESS_TOKEN);
+		if(persist_exists(PERSIST_ACCESS_TOKEN)) { // only try access token if we have refresh token, as AT alone is not useful
+			size = persist_get_size(PERSIST_ACCESS_TOKEN);
 			szAccessToken = malloc(size);
-			persist_read_string(KEY_ACCESS_TOKEN, szAccessToken, size);
+			persist_read_string(PERSIST_ACCESS_TOKEN, szAccessToken, size);
 			LOG("got access token: %s", szRefreshToken);
 		}
 	}
@@ -192,15 +193,15 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		LOG("Saving tokens");
 		Tuple *tAccessToken = dict_find(iter, KEY_ACCESS_TOKEN);
 		if(tAccessToken && tAccessToken->type == TUPLE_CSTRING)
-			persist_write_string(KEY_ACCESS_TOKEN, tAccessToken->value->cstring); // use the same key for storage as for appMessage
+			persist_write_string(PERSIST_ACCESS_TOKEN, tAccessToken->value->cstring); // use the same key for storage as for appMessage
 		else // if no token was passed, assume logout - delete saved token
-			persist_delete(KEY_ACCESS_TOKEN);
+			persist_delete(PERSIST_ACCESS_TOKEN);
 
 		Tuple *tRefreshToken = dict_find(iter, KEY_REFRESH_TOKEN);
 		if(tRefreshToken && tRefreshToken->type == TUPLE_CSTRING)
-			persist_write_string(KEY_REFRESH_TOKEN, tAccessToken->value->cstring);
+			persist_write_string(PERSIST_REFRESH_TOKEN, tAccessToken->value->cstring);
 		else
-			persist_delete(KEY_REFRESH_TOKEN);
+			persist_delete(PERSIST_REFRESH_TOKEN);
 
 		return;
 	} else if(code == CODE_RETRIEVE_TOKEN) { // JS requires saved token
@@ -243,11 +244,12 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		int count = (int)dict_find(iter, KEY_COUNT)->value->int32;
 		LOG("Items count: %d", count);
 		comm_array_size = count;
-		if(scope == SCOPE_LISTS)
+		if(scope == SCOPE_LISTS) {
 			tl_set_count(count);
-		else if(scope == SCOPE_TASKS)
+			//persist_save_list_count(count);
+		} else if(scope == SCOPE_TASKS) {
 			ts_set_count(count);
-		else LOG("Err!");
+		} else LOG("Err!");
 		snprintf(sb_printf_alloc(32), 32, "Loading...");
 		sb_printf_update();
 	} else if(code == CODE_ARRAY_ITEM) {
