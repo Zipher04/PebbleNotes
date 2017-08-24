@@ -56,6 +56,7 @@ enum {
 	OPTION_TASK_ACTIONS_POSITION = 2,
 	PERSIST_ACCESS_TOKEN = 3, // string
 	PERSIST_REFRESH_TOKEN = 4, // string
+	PERSIST_LIST_COUNT = 10, // store number of lists we have
 };
 
 #endif
