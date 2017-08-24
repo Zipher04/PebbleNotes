@@ -1,11 +1,14 @@
 
 #include <string.h>
+#include "pebble.h"
 #include "consts.h"
 #include "misc.h"
+#include "persist.h"
 
-const int persist_get_task_count_key( int listId )
+int persist_get_task_count_key( int listId )
 {
-	int listCount = persist_get_list_count()
+	int listCount = 0;
+	persist_read_list_count( &listCount );
 	if ( listCount <= 0 )
 	{
 		LOG("Persist: List count not defined." );
@@ -27,13 +30,13 @@ const int persist_get_task_count_key( int listId )
 	return key;
 }
 
-const int persist_write_list_count( int count )
+int persist_write_list_count( int count )
 {
 	persist_write_int( PERSIST_LIST_COUNT, count );
 	return 0;
 }
 
-const int persist_write_task_count( int listId, int count )
+int persist_write_task_count( int listId, int count )
 {
 	int key = persist_get_task_count_key( listId );
 	if ( key <= 0 )
@@ -45,13 +48,13 @@ const int persist_write_task_count( int listId, int count )
 	return 0;
 }
 
-const int persist_write_list( int listId, char* title )
+int persist_write_list( int listId, char* title )
 {
 	persist_write_string( PERSIST_LIST_COUNT+1+listId, title );
 	return 0;
 }
 
-const int persist_write_task( int listId, int taskId, char* title, bool done )
+int persist_write_task( int listId, int taskId, char* title, int done )
 {
 	int key = persist_get_task_count_key( listId );
 	if ( key <= 0 )
@@ -68,7 +71,7 @@ const int persist_write_task( int listId, int taskId, char* title, bool done )
 	return 0;
 }
 
-const int persist_read_list_count( int *count )
+int persist_read_list_count( int *count )
 {
 	if ( !persist_exists( PERSIST_LIST_COUNT ) )
 	{
@@ -79,7 +82,7 @@ const int persist_read_list_count( int *count )
 	return 0;
 }
 
-const int persist_read_task_count( int listId, int *count )
+int persist_read_task_count( int listId, int *count )
 {
 	int key = persist_get_task_count_key( listId );
 	if ( !persist_exists( key ) )
@@ -91,7 +94,7 @@ const int persist_read_task_count( int listId, int *count )
 	return 0;
 }
 
-const int persist_read_list( int listId, char* title, int sizeTitle )
+int persist_read_list( int listId, char* title, int sizeTitle )
 {
 	const int key = PERSIST_LIST_COUNT + 1 + listId;
 	if ( !persist_exists( key ) )
@@ -103,7 +106,7 @@ const int persist_read_list( int listId, char* title, int sizeTitle )
 	return 0;
 }
 
-const int persist_read_task( int listId, int taskId, char* title, int sizeTitle, bool *done )
+int persist_read_task( int listId, int taskId, char* title, int sizeTitle, int *done )
 {
 	int key = persist_get_task_count_key( listId ) + 1 + taskId;
 	if ( !persist_exists( key ) )
@@ -112,7 +115,7 @@ const int persist_read_task( int listId, int taskId, char* title, int sizeTitle,
 		return -1;
 	}
 	const int sizeString = sizeTitle + 1;
-	char string = malloc( sizeString );
+	char *string = malloc( sizeString );
 	persist_read_string( key, string, sizeString );
 	*done = string[0] == '1';
 	strncpy( title, string+1, sizeTitle );
