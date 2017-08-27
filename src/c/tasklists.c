@@ -4,6 +4,7 @@
 #include "tasks.h"
 #include "statusbar.h"
 #include "misc.h"
+#include "persist.h"
 
 static Window *wndTasklists;
 static MenuLayer *mlTasklists;

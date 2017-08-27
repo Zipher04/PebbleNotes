@@ -6,8 +6,15 @@ typedef struct {
 	char* title;
 } TL_Item;
 
+/**
+ * Create tasklist window.
+ */
 void tl_init();
 void tl_deinit();
+
+/**
+ * Show tasklist window.
+ */
 void tl_show();
 bool tl_is_active();
 void tl_set_count(int);

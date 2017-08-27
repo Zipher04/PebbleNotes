@@ -7,11 +7,14 @@
 #include "taskinfo.h"
 #include "statusbar.h"
 #include "options.h"
+#include "persis.h"
+#include "offline.h"
 
 static bool comm_js_ready = false;
 static CommJsReadyCallback comm_js_ready_cb;
 static void *comm_js_ready_cb_data;
 static int comm_array_size = -1;
+static int g_comm_last_query_listId = -1;
 
 static bool comm_is_bluetooth_available() {
 	if(!bluetooth_connection_service_peek()) {
@@ -44,7 +47,11 @@ void comm_query_tasklists() {
 		return;
 	}
 	if(!comm_is_available())
+	{
+		offline_read_lists();
+		sb_show( "offline lists" );
 		return;
+	}
 	sb_show("Connecting...");
 	LOG("Querying tasklists");
 	DictionaryIterator *iter;
@@ -66,8 +73,13 @@ void comm_query_tasks(int listId) {
 		comm_is_available(); // show message if needed
 		return;
 	}
+	g_comm_last_query_listId = listId;
 	if(!comm_is_available())
+	{
+		offline_read_tasks( listId );
+		sb_show( "offline tasks" );
 		return;
+	}
 	sb_show("Connecting...");
 	LOG("Querying tasks for listId=%d", listId);
 	DictionaryIterator *iter;
@@ -246,9 +258,10 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		comm_array_size = count;
 		if(scope == SCOPE_LISTS) {
 			tl_set_count(count);
-			//persist_save_list_count(count);
+			persist_write_list_count(count);
 		} else if(scope == SCOPE_TASKS) {
 			ts_set_count(count);
+			persist_write_task_count( g_comm_last_query_listId, count );
 		} else LOG("Err!");
 		snprintf(sb_printf_alloc(32), 32, "Loading...");
 		sb_printf_update();
@@ -268,6 +281,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 				.id = listId,
 				.title = title,
 			});
+			persist_write_list( listId, title );
 		} else {
 			// TODO: check listId?
 			int taskId = (int)dict_find(iter, KEY_TASKID)->value->int32;
@@ -283,6 +297,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 				.title = title,
 				.notes = notes,
 			});
+			persist_write_task( g_comm_last_query_listId, taskId, title, isDone );
 		}
 	} else if(code == CODE_ITEM_UPDATED) {
 		assert(scope == SCOPE_TASK, "Unexpected scope %d, expected TASK", scope);

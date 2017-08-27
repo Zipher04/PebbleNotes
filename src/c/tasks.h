@@ -8,11 +8,23 @@ typedef struct {
 	char* notes;
 } TS_Item;
 
+/**
+ * Create tasks window.
+ */
 void ts_init();
 void ts_deinit();
-void ts_show(int, char*);
+
+/**
+ * Create tasks view for specific listId.
+ */
+void ts_show(int listId, char* listTitle);
 bool ts_is_active();
 int ts_current_listId();
+
+/**
+ * Check tasks window is ready to show.
+ * @return listId for the tasks to show. -1 if tasks not ready.
+ */
 int ts_current_if_complete();
 void ts_set_count(int);
 void ts_set_item(int, TS_Item);

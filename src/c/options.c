@@ -46,5 +46,7 @@ bool options_large_font() {
 }
 
 int options_task_actions_position() {
+	if(persist_exists(OPTION_TASK_ACTIONS_POSITION))
+		task_actions_position = persist_read_int(OPTION_TASK_ACTIONS_POSITION);
 	return task_actions_position;
 }
