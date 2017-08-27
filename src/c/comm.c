@@ -7,7 +7,7 @@
 #include "taskinfo.h"
 #include "statusbar.h"
 #include "options.h"
-#include "persis.h"
+#include "persist.h"
 #include "offline.h"
 
 static bool comm_js_ready = false;
