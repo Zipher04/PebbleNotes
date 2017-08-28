@@ -40,6 +40,12 @@ void comm_query_tasklists_cb(void *arg) {
 	comm_query_tasklists();
 }
 void comm_query_tasklists() {
+	if ( !comm_is_bluetooth_available() )
+	{
+		offline_read_lists();
+		sb_show( "offline lists" );
+		return;
+	}
 	if(!comm_js_ready) {
 		comm_js_ready_cb = comm_query_tasklists_cb;
 		sb_show("Waiting for JS...");
@@ -48,8 +54,6 @@ void comm_query_tasklists() {
 	}
 	if(!comm_is_available())
 	{
-		offline_read_lists();
-		sb_show( "offline lists" );
 		return;
 	}
 	sb_show("Connecting...");
@@ -67,6 +71,12 @@ void comm_query_tasks_cb(void *arg) {
 	comm_query_tasks((int)arg);
 }
 void comm_query_tasks(int listId) {
+	if ( !comm_is_bluetooth_available() )
+	{
+		offline_read_tasks( listId );
+		sb_show( "offline tasks" );
+		return;
+	}
 	if(!comm_js_ready) {
 		comm_js_ready_cb = comm_query_tasks_cb;
 		comm_js_ready_cb_data = (void*)listId;
@@ -76,8 +86,6 @@ void comm_query_tasks(int listId) {
 	g_comm_last_query_listId = listId;
 	if(!comm_is_available())
 	{
-		offline_read_tasks( listId );
-		sb_show( "offline tasks" );
 		return;
 	}
 	sb_show("Connecting...");
