@@ -9,7 +9,7 @@
 static void init(void) {
 	options_init();
 	comm_init();
-	tl_init();
+	//tl_init(); //tl is not needed, load only list named "pebble"
 	ts_init();
 	ti_init();
 	sb_init();

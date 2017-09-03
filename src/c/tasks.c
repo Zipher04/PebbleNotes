@@ -416,3 +416,24 @@ void ts_update_item_state_by_id(int id, bool state) {
 	}
 	APP_LOG(APP_LOG_LEVEL_ERROR, "NOTICE: Couldn't find desired item ID %d to update", id);
 }
+
+void ts_show_pebble( void ) {
+	LOG("Showing tasks for listId=%d", id);
+	if(id != listId) { // not the same list; clearing and will reload
+		if(ts_items)
+			ts_free_items();
+		ts_count = -1;
+		ts_max_count = -1;
+	} else if(options_task_actions_position() == 1) {
+		// FIXME doesn't work for some reason
+		menu_layer_set_selected_index(mlTasks, MenuIndex(1, 0),
+				PBL_IF_ROUND_ELSE(MenuRowAlignCenter, MenuRowAlignTop),
+				false); // not animated
+	}
+	listId = id;
+	listTitle = title;
+
+	window_stack_push(wndTasks, true);
+	if(ts_count < 0)
+		comm_query_tasks(id);
+}

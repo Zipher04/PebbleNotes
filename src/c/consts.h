@@ -6,7 +6,7 @@
 #define OOM_SAFEGUARD 768
 // Minimum free memory required to show taskinfo window
 #define OOM_MIN_TASKINFO 1024
-#define OUTBOX_DESIRED_MAX 1024
+#define INBOX_DESIRED_MAX 1024
 
 // AppMessage key
 enum {
@@ -51,12 +51,25 @@ enum {
 };
 
 // Options (used for storage), should not override with token!
-enum {
+enum EPersistStorageIndex
+{
 	OPTION_LARGE_FONT = 1,
 	OPTION_TASK_ACTIONS_POSITION = 2,
 	PERSIST_ACCESS_TOKEN = 3, // string
 	PERSIST_REFRESH_TOKEN = 4, // string
-	PERSIST_LIST_COUNT = 10, // store number of lists we have
+	PERSIST_VERSION = 5,
+
+	PERSIST_LIST_ID = 10,
+	PERSIST_LIST_LENGTH = 11,
+	PERSIST_LIST_MODIFIED = 12,
+	PERSIST_LIST_SYNC_TIME = 13,
+
+	PERSIST_TASK_ID_0 = 20,		//string
+	PERSIST_TASK_DONE_0,		//int: 0:uncheck, 1:checked
+	PERSIST_TASK_TITLE_0,		//string
+	PERSIST_TASK_NOTE_0,		//string
+	PERSIST_TASK_UPDATE_TIME_0,	//string RFC3339
+	PERSIST_TASK_END,			//posistion holder 
 };
 
 #endif
