@@ -10,7 +10,7 @@
 #include "persist.h"
 #include "offline.h"
 
-static bool comm_js_ready = false;
+static bool comm_js_ready = false;	//ready from js received
 static CommJsReadyCallback comm_js_ready_cb;
 static void *comm_js_ready_cb_data;
 static int comm_array_size = -1;

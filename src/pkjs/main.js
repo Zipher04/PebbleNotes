@@ -242,12 +242,13 @@ function assert(val, message) {
 	}
 }
 
-var g_msg_buffer = [];
-var g_msg_transaction = null;
+var g_msg_buffer = [];			//buffer for message waiting to be sent
+var g_msg_transaction = null;	//current sending message
 
 /**
  * Sends appMessage to pebble; logs errors.
  * failure: may be True to use the same callback as for success.
+ * with timeout = g_msg_timeout
  */
 function sendMessage(data, success, failure) {
 	function sendNext() {
