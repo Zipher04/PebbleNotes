@@ -277,8 +277,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		assert(comm_array_size > 0, "Unexpected array_item!");
 		int i = (int)dict_find(iter, KEY_ITEM)->value->int32;
 		assert(i < comm_array_size, "Index %d exceeds size %d", i, comm_array_size);
-		snprintf(sb_printf_get(), 32, "Loading... %d%%",
-				100 * (i+1) / comm_array_size);
+		snprintf(sb_printf_get(), 32, "Loading... %d%%", 100 * (i+1) / comm_array_size);
 		sb_printf_update();
 		LOG("Statusbar Updated: %d", 100 * (i+1) / comm_array_size);
 		char *title = dict_find(iter, KEY_TITLE)->value->cstring;
@@ -289,7 +288,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 				.id = listId,
 				.title = title,
 			});
-			persist_write_list( listId, title );
+			//persist_write_list( listId, title );
 		} else {
 			// TODO: check listId?
 			int taskId = (int)dict_find(iter, KEY_TASKID)->value->int32;
@@ -361,4 +360,40 @@ void comm_init() {
 }
 void comm_deinit() {
 	app_message_deregister_callbacks();
+}
+
+void comm_query_list_cb(void *arg) {
+	comm_query_list(arg);
+}
+
+//==========================================================
+// Watch send
+//==========================================================
+void comm_query_list( void )
+{
+	if ( !comm_is_bluetooth_available() )
+	{
+		offline_read_list_pebble();
+		sb_show( "offline tasks" );
+		return;
+	}
+	if( !comm_js_ready ) {
+		comm_js_ready_cb = comm_query_list_cb;
+		comm_js_ready_cb_data = "";
+		comm_is_available(); // show message if needed
+		return;
+	}
+
+	if(!comm_is_available())
+	{
+		return;
+	}
+	sb_show("Connecting...");
+	
+	DictionaryIterator *iter;
+	Tuplet code = TupletInteger( KEY_CODE, CODE_SYNC_LIST );
+
+	app_message_outbox_begin(&iter);
+	dict_write_tuplet(iter, &code);
+	app_message_outbox_send();
 }

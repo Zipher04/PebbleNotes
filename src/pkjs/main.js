@@ -391,7 +391,6 @@ function doGetAllLists() {
 function createTaskObjFromGoogle(t) {
 	return {
 		id: t.id,
-		position: t.position,
 		done: t.status == "completed",
 		title: t.title,
 		hasNotes: "notes" in t,
@@ -572,6 +571,119 @@ function doCreateTask(listId, task, parentTask, prevTask) {
 	}, 'POST', taskJson);
 }
 
+var g_google_list = [];
+
+function js_get_list_from_google( void ) {
+	console.log("Querying all tasklists");
+	g_google_list = [];
+	function getListNamedPebble( d ) {
+		// this function receives current page
+		// and then either queries for next one
+		// or saves all gathered items to the watch.
+
+		console.log("JS: Get " + d.items.length + " lists from google.");
+		for( var i = 0 ; i < d.items.length ; i++ ) {
+			var list = d.items[i];
+			if ( "pebble" == list.title ) {
+				g_google_list.push({
+					id: list.id,
+					title: list.title,
+					updated: list.updated,
+				});
+				return;
+			}
+		}
+		if(d.nextPageToken) { // have next page?
+			// query it!
+			queryTasks("users/@me/lists",
+				   {
+					   pageToken: d.nextPageToken
+				   },
+				   getListNamedPebble); // get next page and pass it to this same function
+			// and stop for now
+			return;
+		}
+	}
+	queryTasks( "users/@me/lists", null, getListNamedPebble ); // get first page
+}
+
+function js_get_tasks_from_google( void ) {
+	
+	var realId = g_google_list.id;
+	queryTasks("lists/"+realId+"/tasks", null, function(d) {
+		// FIXME: support more than 100 tasks (by default Google returns only 100)
+		if(d.nextPageToken)
+			displayError("There are more tasks than we can process");
+		console.log("JS: Get " + d.items.length + " tasks from google.");
+		var tasks = g_google_list.tasks = []; // TODO: use it for caching
+		for( var i = 0 ; i < d.items.length ; i++ ) {
+			var l = d.items[i];
+			var task = createTaskObjFromGoogle(l);
+			tasks.push(task);
+			//manageTaskPin(task);
+			// TODO: use cached version to determine deleted tasks
+		}
+		var comparator = function(a, b) {
+			if(g_options.sort_status && a.done != b.done)
+				return a.done ? 1 : -1; // move finished tasks to end
+			var ret = 0;
+			if(g_options.sort_date) {
+				ret = strcmp(a.updated, b.updated);
+				if(g_options.sort_date == "desc")
+					ret *= -1; // reverse order - newest first
+				if(ret !== 0)
+					return ret;
+			}
+			if(g_options.sort_due) {
+				if(a.due && b.due) {
+					ret = strcmp(a.due, b.due);
+					if(g_options.sort_due == "desc")
+						ret *= -1; // reverse order - newest first
+				} else if(a.due || b.due) {
+					ret = a.due ? -1 : 1; // move tasks with due available date to top
+				}
+				if(ret !== 0)
+					return ret;
+			}
+			if(g_options.sort_alpha) {
+				ret = strcmp(a.title, b.title);
+				if(ret !== 0)
+					return ret;
+			}
+			return strcmp(a.position, b.position);
+		};
+		tasks.sort(comparator);
+		if( tasks[tasks.length-1].title === "" && !tasks[tasks.length-1].done ) // if last task is empty and not completed
+			tasks.pop(); // don't show it
+	});
+}
+
+function js_send_tasks_to_phone( tasks )
+{
+	sendMessage({
+			code: 20, // array start/size
+			scope: 1,
+			count: tasks.length});
+	
+	for(i=0; i<tasks.length; i++) {
+		sendMessage({
+				code: 21, // array item
+				scope: 1,
+				item: i,
+				taskId: i,
+				isDone: tasks[i].done?1:0,
+				title: tasks[i].title,
+				hasNotes: tasks[i].hasNotes?1:0,
+				notes: tasks[i].notes
+		});
+	}
+	sendMessage({
+			code: 22, // array end
+			scope: 1,
+			listId: listId,
+			count: tasks.length}); // send resulting list length, just for any
+}
+
 /* Initialization */
 Pebble.addEventListener("ready", function(e) {
 	console.log("JS is running. Okay.");
@@ -748,6 +860,10 @@ Pebble.addEventListener("appmessage", function(e) {
 		} else { // no tokens here nor on watch
 			displayError("Please open settings and log in!"); // if no code, tell user to log in
 		}
+		break;
+	case 51:	//sync with google
+		js_get_list_from_google();
+		js_send_tasks_to_phone( g_google_list );
 		break;
 	default:
 		console.log("Unknown message code "+e.payload.code);

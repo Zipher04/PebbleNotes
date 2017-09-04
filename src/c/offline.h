@@ -12,9 +12,16 @@ int offline_read_lists(void );
  */
 int offline_read_tasks( int listId );
 
+
 //==========================================================
 // New API for listing "pebble"
 //==========================================================
+
+/**
+ * Read tasks from list named "pebble" from persist
+ */
+void offline_read_list_pebble( void );
+
 /**
  *
  *@param length is at least 34.

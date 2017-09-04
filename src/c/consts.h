@@ -42,6 +42,7 @@ enum {
 	CODE_RETRIEVE_TOKEN = 41, // token lost, try to retrieve; query - no args, answer - args: key_*_token or none
 	CODE_SET_OPTION = 45,
 	CODE_ERROR = 50, // some error occured; description may be included
+	CODE_SYNC_LIST = 51,	//sync list with js
 };
 // Message scopes
 enum {

@@ -57,6 +57,33 @@ int offline_read_tasks( int listId )
 	return 0;
 }
 
+void offline_read_list_pebble( void )
+{
+	int taskCount = offline_get_list_length();
+	
+	if ( taskCount <= 0 )
+	{	
+		return;
+	}
+	ts_set_count( taskCount );
+	const int titleLengthMax = 30;
+	const int noteLengthMax = 30;
+	char title[titleLengthMax], note[noteLengthMax];
+	int done;
+	for ( int taskId = 0 ; taskId < taskCount ; ++taskId )
+	{
+		offline_get_task_title( taskId, title, titleLengthMax );
+		offline_get_task_note( taskId, note, noteLengthMax );
+		ts_set_item( taskId, (TS_Item){
+				.id = taskId,
+				.done = offline_is_task_done( taskId),
+				.title = title,
+				.notes = note,
+			});
+	}
+	return;
+}
+
 /**
  * 
  */

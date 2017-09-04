@@ -5,6 +5,8 @@
 #ifndef _COMM_H
 #define _COMM_H
 
+void comm_query_list( void );
+
 // read lists
 void comm_query_tasklists();
 
