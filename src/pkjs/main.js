@@ -37,13 +37,13 @@ function ask(o) {
 	}
 	var req = new XMLHttpRequest();
 	req.open(p('method', (o.data?'POST':'GET')), o.url, true); // open async
-	headers = p('headers', {});
+	var headers = p('headers', {});
 	for(var h in headers)
 		req.setRequestHeader(h, headers[h]);
 	req.onload = function(e) {
 		if(req.readyState == 4) {
 			clearTimeout(xhrTimeout); // got response, no more need in timeout
-			text = req.responseText;
+			var text = req.responseText;
 			if(req.status == 200) {
 				console.log("xhr:success");
 				if(o.success)
@@ -191,7 +191,7 @@ function queryTasks(endpoint, params, success, method, send_data) {
  */
 function renewToken(success) {
 	console.log("Renewing token!");
-	refresh_token = g_refresh_token;
+	var refresh_token = g_refresh_token;
 	if(!refresh_token) {
 		displayError("No refresh token; please log in!", 401);
 		return;
@@ -253,7 +253,7 @@ var g_msg_transaction = null;	//current sending message
 function sendMessage(data, success, failure) {
 	function sendNext() {
 		g_msg_transaction = null;
-		next = g_msg_buffer.shift();
+		var next = g_msg_buffer.shift();
 		if(next) { // have another msg to send
 			sendMessage(next);
 		}
@@ -573,7 +573,7 @@ function doCreateTask(listId, task, parentTask, prevTask) {
 
 var g_google_list = [];
 
-function js_get_list_from_google( void ) {
+function js_get_list_from_google() {
 	console.log("Querying all tasklists");
 	g_google_list = [];
 	function getListNamedPebble( d ) {
@@ -585,6 +585,7 @@ function js_get_list_from_google( void ) {
 		for( var i = 0 ; i < d.items.length ; i++ ) {
 			var list = d.items[i];
 			if ( "pebble" == list.title ) {
+				console.log("List pebble founded");
 				g_google_list.push({
 					id: list.id,
 					title: list.title,
@@ -607,8 +608,8 @@ function js_get_list_from_google( void ) {
 	queryTasks( "users/@me/lists", null, getListNamedPebble ); // get first page
 }
 
-function js_get_tasks_from_google( void ) {
-	
+function js_get_tasks_from_google() {
+	console.log("querying tasks from google");
 	var realId = g_google_list.id;
 	queryTasks("lists/"+realId+"/tasks", null, function(d) {
 		// FIXME: support more than 100 tasks (by default Google returns only 100)
@@ -665,7 +666,7 @@ function js_send_tasks_to_phone( tasks )
 			scope: 1,
 			count: tasks.length});
 	
-	for(i=0; i<tasks.length; i++) {
+	for( var i = 0 ; i < tasks.length ; i++ ) {
 		sendMessage({
 				code: 21, // array item
 				scope: 1,
@@ -680,14 +681,13 @@ function js_send_tasks_to_phone( tasks )
 	sendMessage({
 			code: 22, // array end
 			scope: 1,
-			listId: listId,
 			count: tasks.length}); // send resulting list length, just for any
 }
 
 /* Initialization */
 Pebble.addEventListener("ready", function(e) {
 	console.log("JS is running. Okay.");
-	Timeline.init();
+	//Timeline.init();
 
 	g_access_token = localStorage.access_token;
 	g_refresh_token = localStorage.refresh_token;
@@ -720,7 +720,7 @@ Pebble.addEventListener("ready", function(e) {
 /* Configuration window */
 Pebble.addEventListener("showConfiguration", function(e) {
 	console.log("Showing config window...");
-	opts = {"access_token": (g_access_token === undefined ? "" : g_access_token)};
+	var opts = {"access_token": (g_access_token === undefined ? "" : g_access_token)};
 	for(var key in g_options)
 		opts[key] = g_options[key];
 	var url = g_server_url+"/notes-config.html#"+
@@ -731,7 +731,7 @@ Pebble.addEventListener("showConfiguration", function(e) {
 });
 Pebble.addEventListener("webviewclosed", function(e) {
 	console.log("webview closed: "+e.response);
-	result = {};
+	var result = {};
 	try {
 		if(('response' in e) && e.response) // we don't want to parse 'undefined'
 			result = JSON.parse(decodeURIComponent(e.response));
@@ -863,7 +863,8 @@ Pebble.addEventListener("appmessage", function(e) {
 		break;
 	case 51:	//sync with google
 		js_get_list_from_google();
-		js_send_tasks_to_phone( g_google_list );
+		js_get_tasks_from_google();
+		js_send_tasks_to_phone( g_google_list.tasks );
 		break;
 	default:
 		console.log("Unknown message code "+e.payload.code);
