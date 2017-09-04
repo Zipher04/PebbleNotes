@@ -363,7 +363,7 @@ void comm_deinit() {
 }
 
 void comm_query_list_cb(void *arg) {
-	comm_query_list(arg);
+	comm_query_list();
 }
 
 //==========================================================

@@ -7,33 +7,11 @@
 
 int persist_get_task_count_key( int listId )
 {
-	int listCount = 0;
-	persist_read_list_count( &listCount );
-	if ( listCount <= 0 )
-	{
-		LOG("Persist: List count not defined." );
-		return -1;
-	}
-	int key = PERSIST_LIST_COUNT + listCount + 1;
-	for ( int i = 0 ; i < listId ; ++i )
-	{
-		if ( persist_exists( key ) )
-		{
-			key += persist_read_int( key ) + 1;
-		}
-		else
-		{
-			LOG("Persist: Cannot found key for task count." );
-			return -1;
-		}
-	}
-	return key;
+	return 0;
 }
 
 int persist_write_list_count( int count )
 {
-	persist_write_int( PERSIST_LIST_COUNT, count );
-	LOG( "Persist: write %d: %d", PERSIST_LIST_COUNT, count );
 	return 0;
 }
 
@@ -52,9 +30,7 @@ int persist_write_task_count( int listId, int count )
 
 int persist_write_list( int listId, char* title )
 {
-	LOG( "Persist: write list called with %d: %s", PERSIST_LIST_COUNT+1+listId, title );
-	persist_write_string( PERSIST_LIST_COUNT+1+listId, title );
-	LOG( "Persist: write %d: %s", PERSIST_LIST_COUNT+1+listId, title );
+	
 	return 0;
 }
 
@@ -81,12 +57,7 @@ int persist_write_task( int listId, int taskId, char* title, int done )
 
 int persist_read_list_count( int *count )
 {
-	if ( !persist_exists( PERSIST_LIST_COUNT ) )
-	{
-		LOG("Persist: reading not existing list");
-		return -1;
-	}
-	*count = persist_read_int(PERSIST_LIST_COUNT);
+	
 	return 0;
 }
 
@@ -104,13 +75,7 @@ int persist_read_task_count( int listId, int *count )
 
 int persist_read_list( int listId, char* title, int sizeTitle )
 {
-	const int key = PERSIST_LIST_COUNT + 1 + listId;
-	if ( !persist_exists( key ) )
-	{
-		LOG("Persist: reading not existing list");
-		return -1;
-	}
-	persist_read_string( key, title, sizeTitle );
+	
 	return 0;
 }
 

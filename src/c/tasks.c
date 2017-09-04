@@ -420,8 +420,9 @@ void ts_update_item_state_by_id(int id, bool state) {
 void ts_show_pebble( void ) {
 
 	listTitle = "Pebble";
-
+	LOG("ts show called");
 	window_stack_push(wndTasks, true);
 	if(ts_count < 0)
-		comm_query_tasks(id);
+		comm_query_list();
+	LOG("ts show returned");
 }

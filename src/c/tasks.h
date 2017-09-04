@@ -17,6 +17,7 @@ void ts_deinit();
 /**
  * Create tasks view for specific listId.
  */
+void ts_show_pebble( void );
 void ts_show(int listId, char* listTitle);
 bool ts_is_active();
 int ts_current_listId();

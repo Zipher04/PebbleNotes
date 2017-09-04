@@ -3,57 +3,18 @@
 #include "offline.h"
 #include "misc.h"
 #include "consts.h"
+#include "tasks.h"
 
 static const int c_task_shift_size = PERSIST_TASK_END - PERSIST_TASK_ID_0;
-static const int c_list_length_max = 200 / c_task_shift_size;
+static const int c_list_length_max = 200 / (PERSIST_TASK_END - PERSIST_TASK_ID_0);
 
 int offline_read_lists( void )
 {
-	int listCount = -1;
-	
-	persist_read_list_count( &listCount );
-	if ( listCount <= 0 )
-	{	
-		LOG( "offline: read list count < 0" );
-	}
-	tl_set_count( listCount );
-	
-	const int titleLengthMax = 30;
-	char title[titleLengthMax];
-	for ( int listId = 0 ; listId < listCount ; ++listId )
-	{
-		persist_read_list( listId, title, titleLengthMax );
-		tl_set_item( listId, (TL_Item){
-				.id = listId,
-				.title = title,
-			});
-	}
 	return 0;
 }
 
 int offline_read_tasks( int listId )
 {
-	int taskCount = -1;
-	
-	persist_read_task_count( listId, &taskCount );
-	if ( taskCount <= 0 )
-	{	
-		LOG( "offline: read task count < 0" );
-	}
-	ts_set_count( taskCount );
-	const int titleLengthMax  = 30;
-	char title[titleLengthMax];
-	int done;
-	for ( int taskId = 0 ; taskId < taskCount ; ++taskId )
-	{
-		persist_read_task( listId, taskId, title, titleLengthMax, &done );
-		ts_set_item( taskId, (TS_Item){
-				.id = taskId,
-				.done = done,
-				.title = title,
-				.notes = "",
-			});
-	}
 	return 0;
 }
 
@@ -69,7 +30,6 @@ void offline_read_list_pebble( void )
 	const int titleLengthMax = 30;
 	const int noteLengthMax = 30;
 	char title[titleLengthMax], note[noteLengthMax];
-	int done;
 	for ( int taskId = 0 ; taskId < taskCount ; ++taskId )
 	{
 		offline_get_task_title( taskId, title, titleLengthMax );

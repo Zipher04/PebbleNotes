@@ -5,6 +5,7 @@
 #include "taskinfo.h"
 #include "statusbar.h"
 #include "options.h"
+#include "misc.h"
 
 static void init(void) {
 	options_init();
@@ -13,8 +14,8 @@ static void init(void) {
 	ts_init();
 	ti_init();
 	sb_init();
-
-	tl_show();
+	
+	ts_show_pebble();
 	// others...
 }
 
