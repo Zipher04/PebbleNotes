@@ -586,11 +586,12 @@ function js_get_list_from_google() {
 			var list = d.items[i];
 			if ( "pebble" == list.title ) {
 				console.log("List pebble founded");
-				g_google_list.push({
+				g_google_list = {
 					id: list.id,
 					title: list.title,
 					updated: list.updated,
-				});
+				};
+				js_get_tasks_from_google();
 				return;
 			}
 		}
@@ -609,7 +610,7 @@ function js_get_list_from_google() {
 }
 
 function js_get_tasks_from_google() {
-	console.log("querying tasks from google");
+	console.log("querying tasks from google with id: " + g_google_list.id );
 	var realId = g_google_list.id;
 	queryTasks("lists/"+realId+"/tasks", null, function(d) {
 		// FIXME: support more than 100 tasks (by default Google returns only 100)
@@ -656,6 +657,7 @@ function js_get_tasks_from_google() {
 		tasks.sort(comparator);
 		if( tasks[tasks.length-1].title === "" && !tasks[tasks.length-1].done ) // if last task is empty and not completed
 			tasks.pop(); // don't show it
+		js_send_tasks_to_phone( g_google_list.tasks );
 	});
 }
 
@@ -863,8 +865,8 @@ Pebble.addEventListener("appmessage", function(e) {
 		break;
 	case 51:	//sync with google
 		js_get_list_from_google();
-		js_get_tasks_from_google();
-		js_send_tasks_to_phone( g_google_list.tasks );
+		//js_get_tasks_from_google();
+		//js_send_tasks_to_phone( g_google_list.tasks );
 		break;
 	default:
 		console.log("Unknown message code "+e.payload.code);
