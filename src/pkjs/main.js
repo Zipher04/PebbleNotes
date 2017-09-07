@@ -571,7 +571,9 @@ function doCreateTask(listId, task, parentTask, prevTask) {
 	}, 'POST', taskJson);
 }
 
-var g_google_list = [];
+var g_google_list = null;
+var g_watch_list = null;
+var g_task_index = -1;
 
 function js_get_list_from_google() {
 	console.log("Querying all tasklists");
@@ -657,7 +659,6 @@ function js_get_tasks_from_google() {
 		tasks.sort(comparator);
 		if( tasks[tasks.length-1].title === "" && !tasks[tasks.length-1].done ) // if last task is empty and not completed
 			tasks.pop(); // don't show it
-		js_send_tasks_to_phone( g_google_list.tasks );
 	});
 }
 
@@ -684,6 +685,51 @@ function js_send_tasks_to_phone( tasks )
 			code: 22, // array end
 			scope: 1,
 			count: tasks.length}); // send resulting list length, just for any
+}
+
+function GoogleTaskUpdate ( taskId ) {
+	assert( taskId < g_watch_list.length, "task index overflow");
+	var task = g_watch_list.tasks[taskId];
+	
+	var taskobj = {
+		title: task.title;
+		note: task.note;
+		status: ( task.done ? "completed" : "needsAction" ),
+	};
+	var taskJson = JSON.stringify(taskobj);
+	console.log( "Google task updating: " + taskJson );
+	queryTasks("lists/"+g_watch_list.id+"/tasks/"+task.id, null, function(d) {
+		console.log("Google task updated: : "+ JSON.stringify(d) );
+		assert(d.id == task.id, "Task ID mismatch!!?");
+	}, "PATCH", taskJson);
+}
+
+function GoogleTaskCreate( taskId ) {
+	assert( taskId < g_watch_list.length, "task index overflow");
+	var task = g_watch_list.tasks[taskId];
+	var taskobj = {
+		title: task.title;
+		note: task.note;
+		status: ( task.done ? "completed" : "needsAction" ),
+	};
+	assert( task.title, 'JS error: Create task missing title' );
+	var taskJson = JSON.stringify( taskobj );
+	console.log( "Google task creating" + taskJson );
+	queryTasks('lists/'+g_watch_list.id+'/tasks', null, function(d) {
+		// success
+		console.log( "Google task created: " + JSON.stringify(d) );
+	}, 'POST', taskJson);
+}
+
+function GoogleTaskDelete( taskId ) {
+	assert( taskId < g_watch_list.length, "task index overflow");
+	var task = g_watch_list.tasks[taskId];
+	var taskJson = JSON.stringify( taskobj );
+	console.log( "Google task deleting" + taskJson );
+	queryTasks('lists/'+g_watch_list.id+'/tasks/'+task.id, null, function(d) {
+		// success
+		console.log( "Google task deleted" );
+	}, 'DELETE', taskJson);
 }
 
 /* Initialization */
@@ -865,8 +911,20 @@ Pebble.addEventListener("appmessage", function(e) {
 		break;
 	case 51:	//sync with google
 		js_get_list_from_google();
-		//js_get_tasks_from_google();
-		//js_send_tasks_to_phone( g_google_list.tasks );
+		break;
+	case 52:	//watch sent list
+		g_watch_list = e.payload;
+		console.log( stringify(g_watch_list) );
+		break;
+	case 53:	//watch sent task start
+		g_task_index = 0;
+		break;
+	case 54:	//watch sent task
+		g_watch_list.tasks[i] = e.payload;
+		++g_task_index;
+		break
+	case 55:
+		g_task_index = -1;
 		break;
 	default:
 		console.log("Unknown message code "+e.payload.code);
