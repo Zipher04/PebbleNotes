@@ -201,7 +201,8 @@ static void ts_select_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
 	if(ts_max_count == 0 || idx->row >= ts_count)
 		return; // don't do anything if we have no data for this row
 	TS_Item task = ts_items[idx->row];
-	comm_update_task_status(listId, task.id, !task.done);
+	offline_set_task_status( task.index, !task.done );
+	ts_update_item_state_by_id( task.index, !task.done );
 }
 static void ts_select_long_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
 #ifdef PBL_MICROPHONE

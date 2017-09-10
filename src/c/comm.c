@@ -398,6 +398,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 			bool isDone = (bool)dict_find(iter, KEY_ISDONE)->value->int32;
 			LOG("Item No: %d, Id=%d, done=%d", i, taskId, isDone);
 			ts_set_item(i, (TS_Item){
+				.index = i,
 				.id = taskId,
 				.done = isDone,
 				.title = title,
