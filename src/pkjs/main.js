@@ -576,7 +576,7 @@ var g_watch_list = null;
 var g_task_sending_index = -1;
 
 function GetListFromGoogle() {
-	console.log("Querying all tasklists");
+	console.log("Querying google lists");
 	g_google_list = [];
 	function getListNamedPebble( d ) {
 		// this function receives current page

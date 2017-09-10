@@ -157,9 +157,9 @@ void SentListToPhone( void ) {
 	
 	int listLength = offline_get_list_length();
 		
-	char id[35], syncTime[26];
-	offline_get_list_id( id, 35 );
-	offline_get_list_sync_time( syncTime, 26 );
+	char id[SIZE_LIST_ID], syncTime[SIZE_TIME];
+	offline_get_list_id( id, SIZE_LIST_ID );
+	offline_get_list_sync_time( syncTime, SIZE_TIME );
 	
 	DictionaryIterator *iter;
 	Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_LIST );
@@ -190,7 +190,7 @@ void SentTaskToPhone( int taskIndex )
 	Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK );
 	Tuplet tId = TupletCString( KEY_ID, &id[0] );
 	Tuplet tTitle = TupletCString( KEY_TITLE, &title[0] );
-	Tuplet tNote = TupletCString( KEY_NOTE, &note[0] );
+	Tuplet tNote = TupletCString( KEY_NOTES, &note[0] );
 	Tuplet tUpdateTime = TupletCString( KEY_UPDATED, &updateTime[0] );
 	
 	int result = app_message_outbox_begin(&iter);
@@ -305,7 +305,6 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		}
 		sb_show("Syncing...");
 		SentListToPhone();
-		SentTasksToPhone();
 		return;
 	} else if( code == CODE_SEND_LIST_ACK ) {
 		if ( 0 == offline_get_list_length() )
@@ -332,11 +331,15 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		SendCodeToPhone( CODE_SYNC_LIST );
 	}
 
-
+	
 	tScope = dict_find(iter, KEY_SCOPE);
-	assert(tScope, "No scope!");
-	int scope = (int)tScope->value->int32;
-	LOG("Message scope: %d", scope);
+	//assert(tScope, "No scope!");
+	int scope;
+	if ( !tScope )
+		scope = 1;
+	else
+		scope = (int)tScope->value->int32;
+	//LOG("Message scope: %d", scope);
 
 	if(scope == SCOPE_LISTS) {
 		// this might be legal if we auto-switched to the only list
@@ -349,6 +352,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		APP_LOG(APP_LOG_LEVEL_ERROR, "Unexpected scope: %d", scope);
 		return;
 	}
+	
 
 	if(code == CODE_ARRAY_START) {
 		int count = (int)dict_find(iter, KEY_COUNT)->value->int32;
@@ -430,13 +434,13 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		ts_show_pebble();
 	} else if ( CODE_SEND_LIST == code ) {
 		char *id = dict_find( iter, KEY_ID )->value->cstring;
-		offline_set_list_id( id );
 		int length = dict_find( iter, KEY_LENGTH )->value->int32;
-		offline_set_list_length( length );
 		char *updated = dict_find( iter, KEY_UPDATED )->value->cstring;
+		offline_set_list_id( id );
+		offline_set_list_length( length );
 		offline_set_list_sync_time( updated );
 		comm_array_size = length;
-		sb_show( "Loading task from phone..." );
+		sb_show( "List loaded from phone" );
 	} else if ( CODE_SEND_TASK_START == code ) {
 		
 	} else if ( CODE_SEND_TASK == code ) {
@@ -450,7 +454,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		int  item = dict_find( iter, KEY_ITEM	)->value->int32;
 		char *id 	= dict_find( iter, KEY_ID	)->value->cstring;
 		char *title = dict_find( iter, KEY_TITLE)->value->cstring;
-		char *note 	= dict_find( iter, KEY_NOTE	)->value->cstring;
+		char *note 	= dict_find( iter, KEY_NOTES)->value->cstring;
 		int  done 	= dict_find( iter, KEY_DONE	)->value->int32;
 		char *updated = dict_find( iter, KEY_UPDATED )->value->cstring;
 		

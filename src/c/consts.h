@@ -20,7 +20,7 @@ enum {
 	KEY_SIZE = 21, // count of tasks in tasklist
 	KEY_ISDONE = 22, // is the task done
 	KEY_HASNOTES = 23, // if task has notes field
-	KEY_NOTES = 24, // string: task's notes field
+	//KEY_NOTES = 24, // string: task's notes field
 	KEY_ACCESS_TOKEN = 40, // string
 	KEY_REFRESH_TOKEN = 41, // string
 	KEY_OPTION_ID = 45, // int
@@ -32,7 +32,7 @@ enum {
 	KEY_UPDATED = 53,
 	KEY_DONE = 54,
 	KEY_TITLE = 55,
-	KEY_NOTE = 56,
+	KEY_NOTES = 56,
 };
 // Message codes in KEY_CODE
 enum {
@@ -92,6 +92,7 @@ enum EPersistStorageIndex
 
 enum
 {
+	SIZE_LIST_ID = 47,
 	SIZE_TASK_ID = 46,
 	SIZE_TASK_TITLE = 50,
 	SIZE_TASK_NOTE = 50,
