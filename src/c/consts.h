@@ -16,7 +16,7 @@ enum {
 	KEY_ITEM = 6, // item number (for code=array_item)
 	KEY_LISTID = 10, // (internal) ID of tasklist
 	KEY_TASKID = 11, // (internal) ID for task
-	KEY_TITLE = 20, // string: title for list or task
+	//KEY_TITLE = 20, // string: title for list or task
 	KEY_SIZE = 21, // count of tasks in tasklist
 	KEY_ISDONE = 22, // is the task done
 	KEY_HASNOTES = 23, // if task has notes field
@@ -32,7 +32,7 @@ enum {
 	KEY_UPDATED = 53,
 	KEY_DONE = 54,
 	KEY_TITLE = 55,
-	kEY_NOTE = 56,
+	KEY_NOTE = 56,
 };
 // Message codes in KEY_CODE
 enum {

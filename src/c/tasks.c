@@ -6,6 +6,7 @@
 #include "statusbar.h"
 #include "options.h"
 #include "consts.h"
+#include "offline.h"
 
 #ifdef BIGGER_FONT
 #define CUSTOM_FONT "RESOURCE_ID_GOTHIC_24_BOLD"
@@ -441,7 +442,7 @@ void ts_show_pebble( void ) {
 				.id = i,
 				.done = done,
 				.title = title,
-				.notes = notes,
+				.notes = note,
 			});
 	}
 	

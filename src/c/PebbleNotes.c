@@ -17,8 +17,8 @@ static void init(void) {
 	
 	TrySyncWithPhone();
 	
-	while ( !IsSyncOK( void ) )
-		Sleep(50);
+	while ( !IsSyncOK() )
+		psleep(50);
 	
 	ts_show_pebble();
 	// others...

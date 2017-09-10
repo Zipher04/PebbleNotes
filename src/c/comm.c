@@ -344,12 +344,12 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		int length = dict_find( iter, KEY_LENGTH )->value->int32;
 		offline_set_list_length( length );
 		char *updated = dict_find( iter, KEY_UPDATED )->value->cstring;
-		offline_set_list_sync_time( update );
+		offline_set_list_sync_time( updated );
 		comm_array_size = length;
 		sb_show( "Loading task from phone..." );
 	} else if ( CODE_SEND_TASK_START == code ) {
 		
-	} else if ( CODE_SEND_LIST == code ) {
+	} else if ( CODE_SEND_TASK == code ) {
 		assert( comm_array_size > 0, "Unexpected array_item!" );
 		int i = (int)dict_find( iter, KEY_ITEM )->value->int32;
 		assert( i < comm_array_size, "Index %d exceeds size %d", i, comm_array_size);
@@ -357,19 +357,20 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		sb_printf_update();
 		LOG("Statusbar Updated: %d", 100 * (i+1) / comm_array_size );
 		
+		int  item = dict_find( iter, KEY_ITEM	)->value->int32;
 		char *id 	= dict_find( iter, KEY_ID	)->value->cstring;
 		char *title = dict_find( iter, KEY_TITLE)->value->cstring;
-		char *note 	= dict_find( iter, kEY_NOTE	)->value->cstring;
+		char *note 	= dict_find( iter, KEY_NOTE	)->value->cstring;
 		int  done 	= dict_find( iter, KEY_DONE	)->value->int32;
 		char *updated = dict_find( iter, KEY_UPDATED )->value->cstring;
 		
 		LOG("Item No %d: Id=%s, title=%s, note=%s, done=%d, updated=%s", i, id, title, note, done, updated );
 		
-		offline_set_task_id( i, id );
-		offline_set_task_title( i, title );
-		offline_set_task_note( i, note );
-		offline_set_task_done( i, done );
-		offline_set_task_update_time( i, updated );
+		offline_set_task_id( item, id );
+		offline_set_task_title( item, title );
+		offline_set_task_note( item, note );
+		offline_set_task_done( item, done );
+		offline_set_task_update_time( item, updated );
 	} else if ( CODE_SEND_TASK_END == code ) {
 		comm_array_size = -1; // no current array
 		sb_hide(); // hide load percentage
@@ -422,9 +423,9 @@ void SentListToPhone( void ) {
 	
 	DictionaryIterator *iter;
 	Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_LIST );
-	Tuplet tId = TupletCString( KEY_ID, id );
+	Tuplet tId = TupletCString( KEY_ID, &id[0] );
 	Tuplet tLength = TupletInteger( KEY_LENGTH, listLength );
-	Tuplet tSyncTime = TupletCString( KEY_UPDATED, syncTime );
+	Tuplet tSyncTime = TupletCString( KEY_UPDATED, &syncTime[0] );
 	
 
 	app_message_outbox_begin(&iter);
@@ -457,30 +458,33 @@ void SentTasksToPhone( void ) {
 		
 		DictionaryIterator *iter;
 		Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK );
-		Tuplet tId = TupletCString( KEY_ID, id );
-		Tuplet tLength = TupletInteger( KEY_LENGTH, listLength );
-		Tuplet tSyncTime = TupletCString( KEY_UPDATED, syncTime );
+		Tuplet tId = TupletCString( KEY_ID, &id[0] );
+		Tuplet tTitle = TupletCString( KEY_TITLE, &title[0] );
+		Tuplet tNote = TupletCString( KEY_NOTE, &note[0] );
+		Tuplet tSyncTime = TupletCString( KEY_UPDATED, &syncTime[0] );
 		
 		app_message_outbox_begin(&iter);
 		dict_write_tuplet(iter, &tCode);
 		dict_write_tuplet(iter, &tId );
-		dict_write_tuplet(iter, &tLength );
+		dict_write_tuplet(iter, &tTitle);
+		dict_write_tuplet(iter, &tNote);
 		dict_write_tuplet(iter, &tSyncTime );
 		app_message_outbox_send();
 	}
 	
-	DictionaryIterator *iter;
-	Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK_END );
-	app_message_outbox_begin(&iter);
-	dict_write_tuplet(iter, &tCode);
-	app_message_outbox_send();
+	{
+		Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK_END );
+		app_message_outbox_begin(&iter);
+		dict_write_tuplet(iter, &tCode);
+		app_message_outbox_send();
+	}
 }
 
 void TrySyncWithPhone( void ) {
 	if ( !comm_is_bluetooth_available() )
 	{
 		offline_read_list_pebble();
-		console.log( "offline mode" );
+		LOG( "offline mode" );
 		syncOk = true;
 		return;
 	}

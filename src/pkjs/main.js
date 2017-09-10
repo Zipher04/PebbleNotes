@@ -697,7 +697,7 @@ function SendListToWatch( list ) {
 			count: list.tasks.length}); // send resulting list length, just for any
 }
 
-function SendListReceivedOKToWatch {
+function SendListReceivedOKToWatch () {
 	sendMessage({
 			code: 56, // array end
 			}); //
@@ -705,8 +705,8 @@ function SendListReceivedOKToWatch {
 
 function GoogleTaskUpdate ( task ) {
 	var taskobj = {
-		title: task.title;
-		note: task.note;
+		title: task.title,
+		note: task.note,
 		status: task.status,
 		updated: task.updated
 	};
@@ -720,8 +720,8 @@ function GoogleTaskUpdate ( task ) {
 
 function GoogleTaskCreate( task ) {
 	var taskobj = {
-		title: task.title;
-		note: task.note;
+		title: task.title,
+		note: task.note,
 		status: task.statsus,
 		updated: task.updated
 	};
@@ -736,12 +736,11 @@ function GoogleTaskCreate( task ) {
 }
 
 function GoogleTaskDelete( task ) {
-	var taskJson = JSON.stringify( taskobj );
-	console.log( "Google task deleting" + taskJson );
+	console.log( "Google task deleting" + JSON.stringify( task ) );
 	queryTasks('lists/'+g_watch_list.id+'/tasks/'+task.id, null, function(d) {
 		// success
 		console.log( "Google task deleted" );
-	}, 'DELETE', taskJson);
+	}, 'DELETE', null );
 }
 
 function FindTask( list, taskId ) {
@@ -749,7 +748,7 @@ function FindTask( list, taskId ) {
 		return null;
 	for ( var i = 0 ; i < list.tasks.length ; ++i )
 	{
-		if ( task.id == taskId )
+		if ( list.tasks[i].id == taskId )
 			return i;
 	}
 	return null;
@@ -769,7 +768,7 @@ function CopyTask( target, source ) {
 	target.updated = source.updated;
 }
 
-function SyncWatchAndGoogle( void ) {
+function SyncWatchAndGoogle() {
 	if ( g_google_list === null )
 	{
 		console.log( "Error: Sync goole list is null" );
@@ -821,10 +820,10 @@ function SyncWatchAndGoogle( void ) {
 		}
 	}	//end for( var task in g_watch_list.tasks )
 		
-	for( var task in g_google_list.tasks )
+	for( var gtask in g_google_list.tasks )
 	{
-		g_watch_list.tasks.push( task );
-		DeleteTaskFromList( g_google_list, task );
+		g_watch_list.tasks.push( gtask );
+		DeleteTaskFromList( g_google_list, gtask );
 	}
 	
 	g_watch_list.synced = Date().toISOString();
@@ -1012,7 +1011,7 @@ Pebble.addEventListener("appmessage", function(e) {
 		break;
 	case 52:	//watch sent list
 		g_watch_list = e.payload;
-		console.log( stringify(g_watch_list) );
+			console.log( "Sending list to phone:" + JSON.stringify(g_watch_list) );
 		break;
 	case 53:	//watch sent task start
 		g_task_sending_index = 0;
@@ -1035,7 +1034,7 @@ Pebble.addEventListener("appmessage", function(e) {
 			break;
 		}
 		++g_task_sending_index;
-		break
+		break;
 	case 55:
 		console.log( "List size=" + g_watch_list.length + ", tasks get=" + g_task_sending_index );
 		g_task_sending_index = -1;
