@@ -774,7 +774,7 @@ function SyncWatchAndGoogle() {
 		console.log( "Error: Sync goole list is null" );
 		return;
 	}
-	if ( g_watch_list === null )
+	if ( g_watch_list.id == "" )
 	{
 		console.log( "JS: phone list is null");
 		g_watch_list = g_google_list;
@@ -1011,13 +1011,15 @@ Pebble.addEventListener("appmessage", function(e) {
 		break;
 	case 52:	//watch sent list
 		g_watch_list = e.payload;
-			console.log( "Sending list to phone:" + JSON.stringify(g_watch_list) );
+		console.log( "watch sent list" );
 		break;
 	case 53:	//watch sent task start
 		g_task_sending_index = 0;
+		console.log( "watch sent task start" );
 		break;
 	case 54:	//watch sent task
 		g_watch_list.tasks[g_task_sending_index] = e.payload;
+		console.log( "watch sent task item" );
 		switch ( e.payload.done )
 		{
 		case 0:
@@ -1036,7 +1038,7 @@ Pebble.addEventListener("appmessage", function(e) {
 		++g_task_sending_index;
 		break;
 	case 55:
-		console.log( "List size=" + g_watch_list.length + ", tasks get=" + g_task_sending_index );
+		console.log( "watch sent task end, list size=" + g_watch_list.length + ", tasks get=" + g_task_sending_index );
 		g_task_sending_index = -1;
 		SendListReceivedOKToWatch();
 		break;

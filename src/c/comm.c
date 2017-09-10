@@ -152,10 +152,10 @@ void comm_create_task(int listId, char* title, char* notes) {
 }
 
 void SentListToPhone( void ) {
-	int listLength = offline_get_list_length();
-	if ( listLength <= 0 )
-		return;
+	LOG ( "Sending list" );
 	
+	int listLength = offline_get_list_length();
+		
 	char id[35], syncTime[26];
 	offline_get_list_id( id, 35 );
 	offline_get_list_sync_time( syncTime, 26 );
@@ -167,7 +167,8 @@ void SentListToPhone( void ) {
 	Tuplet tSyncTime = TupletCString( KEY_UPDATED, &syncTime[0] );
 	
 
-	app_message_outbox_begin(&iter);
+	int result = app_message_outbox_begin(&iter);
+	assert( APP_MSG_OK == result, "Error: outbox failed" );
 	dict_write_tuplet(iter, &tCode);
 	dict_write_tuplet(iter, &tId );
 	dict_write_tuplet(iter, &tLength );
@@ -177,12 +178,13 @@ void SentListToPhone( void ) {
 
 void SentTasksToPhone( void ) {
 	int listLength = offline_get_list_length();
-	if ( listLength <= 0 )
-		return;
+
+	LOG ( "Sending task" );
 	
 	DictionaryIterator *iter;
 	Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK_START );
-	app_message_outbox_begin(&iter);
+	int result = app_message_outbox_begin(&iter);
+	assert( APP_MSG_OK == result, "Error: outbox failed" );
 	dict_write_tuplet(iter, &tCode);
 	app_message_outbox_send();
 	
@@ -202,7 +204,8 @@ void SentTasksToPhone( void ) {
 		Tuplet tNote = TupletCString( KEY_NOTE, &note[0] );
 		Tuplet tSyncTime = TupletCString( KEY_UPDATED, &syncTime[0] );
 		
-		app_message_outbox_begin(&iter);
+		int result = app_message_outbox_begin(&iter);
+		assert( APP_MSG_OK == result, "Error: outbox failed" );
 		dict_write_tuplet(iter, &tCode);
 		dict_write_tuplet(iter, &tId );
 		dict_write_tuplet(iter, &tTitle);
@@ -213,7 +216,8 @@ void SentTasksToPhone( void ) {
 	
 	{
 		Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK_END );
-		app_message_outbox_begin(&iter);
+		int result = app_message_outbox_begin(&iter);
+		assert( APP_MSG_OK == result, "Error: outbox failed" );
 		dict_write_tuplet(iter, &tCode);
 		app_message_outbox_send();
 	}

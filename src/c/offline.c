@@ -53,7 +53,11 @@ void offline_set_list_id( char* id )
 }
 void offline_get_list_id( char* id, int length )
 {
-	assert( persist_exists( PERSIST_LIST_ID ), "List id not exist" );
+	if ( !persist_exists( PERSIST_LIST_ID ) )
+	{
+		LOG ( "List id not found." );
+		id[0] = '\0';
+	}
 	assert( length > persist_get_size( PERSIST_LIST_ID ), "Length for list id too small" );
 	persist_read_string( PERSIST_LIST_ID, id, length );
 }
