@@ -391,9 +391,8 @@ function doGetAllLists() {
 function createTaskObjFromGoogle(t) {
 	return {
 		id: t.id,
-		done: t.status == "completed",
+		status: t.status,
 		title: t.title,
-		hasNotes: "notes" in t,
 		notes: t.notes,
 		updated: t.updated,
 		due: t.due,
