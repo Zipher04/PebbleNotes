@@ -14,7 +14,7 @@ static void init(void) {
 	ts_init();
 	ti_init();
 	sb_init();
-	persist_write_int( 11, 0 );
+	//persist_write_int( 11, 0 );
 	TrySyncWithPhone();
 	// others...
 }

@@ -1009,6 +1009,7 @@ Pebble.addEventListener("appmessage", function(e) {
 		break;
 	case 53:	//watch sent task start
 		g_task_sending_index = 0;
+		g_watch_list.tasks = {};
 		console.log( "js get task start" );
 		sendMessage({code: 57}); //acknoledge
 		break;

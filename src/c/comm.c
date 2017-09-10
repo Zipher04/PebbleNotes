@@ -180,7 +180,7 @@ void SentListToPhone( void ) {
 void SentTaskToPhone( int taskIndex ) 
 {
 	char id[SIZE_TASK_ID], title[SIZE_TASK_TITLE], note[SIZE_TASK_NOTE], updateTime[SIZE_TIME];
-			
+	
 	offline_get_task_id( taskIndex, id, SIZE_TASK_ID );
 	offline_get_task_title( taskIndex, title, SIZE_TASK_TITLE );
 	offline_get_task_note( taskIndex, note, SIZE_TASK_NOTE );
@@ -192,6 +192,7 @@ void SentTaskToPhone( int taskIndex )
 	Tuplet tTitle = TupletCString( KEY_TITLE, &title[0] );
 	Tuplet tNote = TupletCString( KEY_NOTES, &note[0] );
 	Tuplet tUpdateTime = TupletCString( KEY_UPDATED, &updateTime[0] );
+	Tuplet tDone = TupletInteger( KEY_DONE, offline_get_task_status(taskIndex) );
 	
 	int result = app_message_outbox_begin(&iter);
 	assert( APP_MSG_OK == result, "Error: outbox failed" );
@@ -199,6 +200,7 @@ void SentTaskToPhone( int taskIndex )
 	dict_write_tuplet(iter, &tId );
 	dict_write_tuplet(iter, &tTitle);
 	dict_write_tuplet(iter, &tNote);
+	dict_write_tuplet(iter, &tDone);
 	dict_write_tuplet(iter, &tUpdateTime );
 	app_message_outbox_send();
 }
@@ -313,9 +315,12 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		}
 		else
 		{
-			SentTaskToPhone( 0 );
-			gTaskSendingIndex = 1;
+			SendCodeToPhone( CODE_SEND_TASK_START );
 		}
+		return;
+	} else if ( CODE_SEND_TASK_START_ACK == code ) {
+		SentTaskToPhone( 0 );
+		gTaskSendingIndex = 1;
 		return;
 	} else if ( CODE_SEND_TASK_ACK == code ) {
 		if ( gTaskSendingIndex >= offline_get_list_length() )
