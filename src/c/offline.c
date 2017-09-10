@@ -146,14 +146,14 @@ void offline_get_task_note( int i, char* note, int length )
 /**
  * @para done: 0:unchecked, 1:checked
  */
-void offline_set_task_done( int i, int done )
+void offline_set_task_status( int i, int done )
 {
 	assert( i < c_list_length_max && i >= 0, "Invalid task index" );
-	persist_write_int( i*c_task_shift_size + PERSIST_TASK_DONE_0, done == 0 ? 0 : 1 );
+	persist_write_int( i*c_task_shift_size + PERSIST_TASK_DONE_0, done );
 }
 int offline_get_task_status( int i )
 {
-	return persist_read_int( i*c_task_shift_size + PERSIST_TASK_DONE_0 ) == 0 ? 0 : 1;
+	return persist_read_int( i*c_task_shift_size + PERSIST_TASK_DONE_0 );
 }
 
 /**

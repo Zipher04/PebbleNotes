@@ -463,7 +463,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		offline_set_task_id( item, id );
 		offline_set_task_title( item, title );
 		offline_set_task_note( item, note );
-		offline_set_task_done( item, done );
+		offline_set_task_status( item, done );
 		offline_set_task_update_time( item, updated );
 	} else if ( CODE_SEND_TASK_END == code ) {
 		comm_array_size = -1; // no current array
