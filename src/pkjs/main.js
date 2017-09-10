@@ -762,6 +762,9 @@ function CopyTask( target, source ) {
 }
 
 function SyncWatchAndGoogle() {
+	
+	console.log( "watch list:" + JSON.stringify( g_watch_list ) );
+	console.log( "Google list:" + JSON.stringify( g_google_list ) );
 	if ( g_google_list === null )
 	{
 		console.log( "Error: Sync goole list is null" );
@@ -773,41 +776,48 @@ function SyncWatchAndGoogle() {
 		g_watch_list = g_google_list;
 		return;
 	}
-	if ( g_watch_list.id != g_google_list)
+	if ( g_watch_list.id != g_google_list.id )
 	{
-		console.log( "Error: Sync list id mismatch" );
+		console.log( "Error: Sync list id mismatch" + g_watch_list.id + " with " + g_google_list.id );
 		return;
 	}
 		
 	for( var task in g_watch_list.tasks )
 	{
+		console.log( "Comparing watch task:" + JSON.stringify( task ) );
 		if ( task.id === null )
 		{	//watch new task
+			console.log("watch no id, creating google task");
 			GoogleTaskCreate( task );
 			continue;
 		}
 		var gTaskIndex = FindTask( g_google_list, task.id );
 		if ( gTaskIndex === null )
-		{	//googel deleted task`
+		{	//googel deleted task
+			console.log("watch only, deleting watch task");
 			DeleteTaskFromList( g_watch_list, task );
 			continue;
 		}
 		
 		var gTask = g_google_list.tasks[gTaskIndex];
+		console.log( "Comparing with google task:" + JSON.stringify( gTask ) );
 		DeleteTaskFromList( g_google_list, gTask );
 		if ( gTask.updated > task.update )
 		{	//google is newer
+			console.log("google task is newer");
 			CopyTask( task, gTask );
 		}
 		else if ( gTask.updated < task.update )
 		{	//watch is newer
 			if ( task.status == 'deleted')
 			{	//task deleted
+				console.log("watch task is newer, deleting google");
 				GoogleTaskDelete( task );
 				DeleteTaskFromList( g_watch_list, task );
 			}
 			else 
 			{	//task updated
+				console.log("watch task is newer, updating google");
 				GoogleTaskUpdate( task );
 			}
 		}
@@ -815,6 +825,7 @@ function SyncWatchAndGoogle() {
 		
 	for( var gtask in g_google_list.tasks )
 	{
+		console.log( "Adding google only task:" + JSON.stringify( gtask ) );
 		g_watch_list.tasks.push( gtask );
 		DeleteTaskFromList( g_google_list, gtask );
 	}

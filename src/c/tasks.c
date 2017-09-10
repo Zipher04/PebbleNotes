@@ -7,6 +7,7 @@
 #include "options.h"
 #include "consts.h"
 #include "offline.h"
+#include "isoTime.h"
 
 #ifdef BIGGER_FONT
 #define CUSTOM_FONT "RESOURCE_ID_GOTHIC_24_BOLD"
@@ -201,8 +202,13 @@ static void ts_select_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
 	if(ts_max_count == 0 || idx->row >= ts_count)
 		return; // don't do anything if we have no data for this row
 	TS_Item task = ts_items[idx->row];
-	offline_set_task_status( task.index, !task.done );
-	ts_update_item_state_by_id( task.index, !task.done );
+	
+	char time[SIZE_TIME];
+	GetIsoTime( time, SIZE_TIME );
+	
+	offline_set_task_status( task.id, !task.done );
+	offline_set_task_update_time( task.id, time );
+	ts_update_item_state_by_id( task.id, !task.done );
 }
 static void ts_select_long_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
 #ifdef PBL_MICROPHONE
