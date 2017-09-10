@@ -268,6 +268,7 @@ void ts_init() {
 	bmpTasks[0] = gbitmap_create_with_resource(RESOURCE_ID_TASK_UNDONE);
 	bmpTasks[1] = gbitmap_create_with_resource(RESOURCE_ID_TASK_DONE);
 	menuFont = fonts_get_system_font(CUSTOM_FONT);
+	window_stack_push(wndTasks, true);
 	LOG("Tasks module initialized, window is %p", wndTasks);
 }
 void ts_deinit() {
@@ -422,7 +423,6 @@ void ts_show_pebble( void ) {
 
 	listTitle = "Pebble";
 	LOG("ts show called");
-	window_stack_push(wndTasks, true);
 	int taskLength = offline_get_list_length();
 	ts_set_count( taskLength );
 	for ( int i = 0 ; i < taskLength ; ++i )
