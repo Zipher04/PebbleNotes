@@ -697,12 +697,6 @@ function SendListToWatch( list ) {
 			count: list.tasks.length}); // send resulting list length, just for any
 }
 
-function SendListReceivedOKToWatch () {
-	sendMessage({
-			code: 56, // array end
-			}); //
-}
-
 function GoogleTaskUpdate ( task ) {
 	var taskobj = {
 		title: task.title,
@@ -1011,15 +1005,18 @@ Pebble.addEventListener("appmessage", function(e) {
 		break;
 	case 52:	//watch sent list
 		g_watch_list = e.payload;
-		console.log( "watch sent list" );
+		console.log( "js get list" );
+		sendMessage({code: 56}); //acknoledge
 		break;
 	case 53:	//watch sent task start
 		g_task_sending_index = 0;
-		console.log( "watch sent task start" );
+		console.log( "js get task start" );
+		sendMessage({code: 57}); //acknoledge
 		break;
 	case 54:	//watch sent task
 		g_watch_list.tasks[g_task_sending_index] = e.payload;
-		console.log( "watch sent task item" );
+		console.log( "js get task item" );
+		sendMessage({code: 58}); //acknoledge
 		switch ( e.payload.done )
 		{
 		case 0:
@@ -1038,9 +1035,9 @@ Pebble.addEventListener("appmessage", function(e) {
 		++g_task_sending_index;
 		break;
 	case 55:
-		console.log( "watch sent task end, list size=" + g_watch_list.length + ", tasks get=" + g_task_sending_index );
+		console.log( "js get task end, list size=" + g_watch_list.length + ", tasks get=" + g_task_sending_index );
 		g_task_sending_index = -1;
-		SendListReceivedOKToWatch();
+		sendMessage({code: 59}); //acknoledge
 		break;
 	default:
 		console.log("Unknown message code "+e.payload.code);

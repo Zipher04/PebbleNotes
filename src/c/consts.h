@@ -50,11 +50,17 @@ enum {
 	CODE_SET_OPTION = 45,
 	CODE_ERROR = 50, // some error occured; description may be included
 	CODE_SYNC_LIST = 51,	//sync list with js
+	
 	CODE_SEND_LIST = 52,
 	CODE_SEND_TASK_START = 53,
 	CODE_SEND_TASK = 54,
 	CODE_SEND_TASK_END = 55,
-	CODE_SEND_TASK_END_ACK = 56,
+	
+	CODE_SEND_LIST_ACK = 56,
+	CODE_SEND_TASK_START_ACK = 57,
+	CODE_SEND_TASK_ACK = 58,
+	CODE_SEND_TASK_END_ACK = 59,
+	
 };
 // Message scopes
 enum {

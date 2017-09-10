@@ -15,6 +15,7 @@ static CommJsReadyCallback comm_js_ready_cb;
 static void *comm_js_ready_cb_data;
 static int comm_array_size = -1;
 static int g_comm_last_query_listId = -1;
+static int gTaskSendingIndex = -1;
 
 static bool comm_is_bluetooth_available() {
 	if(!bluetooth_connection_service_peek()) {
@@ -176,51 +177,41 @@ void SentListToPhone( void ) {
 	app_message_outbox_send();
 }
 
-void SentTasksToPhone( void ) {
-	int listLength = offline_get_list_length();
-
-	LOG ( "Sending task" );
+void SentTaskToPhone( int taskIndex ) 
+{
+	char id[SIZE_TASK_ID], title[SIZE_TASK_TITLE], note[SIZE_TASK_NOTE], updateTime[SIZE_TIME];
+			
+	offline_get_task_id( taskIndex, id, SIZE_TASK_ID );
+	offline_get_task_title( taskIndex, title, SIZE_TASK_TITLE );
+	offline_get_task_note( taskIndex, note, SIZE_TASK_NOTE );
+	offline_get_task_update_time( taskIndex, updateTime, SIZE_TIME );
 	
 	DictionaryIterator *iter;
-	Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK_START );
+	Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK );
+	Tuplet tId = TupletCString( KEY_ID, &id[0] );
+	Tuplet tTitle = TupletCString( KEY_TITLE, &title[0] );
+	Tuplet tNote = TupletCString( KEY_NOTE, &note[0] );
+	Tuplet tUpdateTime = TupletCString( KEY_UPDATED, &updateTime[0] );
+	
 	int result = app_message_outbox_begin(&iter);
 	assert( APP_MSG_OK == result, "Error: outbox failed" );
 	dict_write_tuplet(iter, &tCode);
+	dict_write_tuplet(iter, &tId );
+	dict_write_tuplet(iter, &tTitle);
+	dict_write_tuplet(iter, &tNote);
+	dict_write_tuplet(iter, &tUpdateTime );
 	app_message_outbox_send();
-	
-	char id[SIZE_TASK_ID], title[SIZE_TASK_TITLE], note[SIZE_TASK_NOTE], syncTime[SIZE_TIME];
-	
-	for ( int i = 0 ; i < listLength ; ++i )
-	{
-		offline_get_task_id( i, id, SIZE_TASK_ID );
-		offline_get_task_title( i, title, SIZE_TASK_TITLE );
-		offline_get_task_note( i, note, SIZE_TASK_NOTE );
-		offline_get_list_sync_time( syncTime, SIZE_TIME );
-		
-		DictionaryIterator *iter;
-		Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK );
-		Tuplet tId = TupletCString( KEY_ID, &id[0] );
-		Tuplet tTitle = TupletCString( KEY_TITLE, &title[0] );
-		Tuplet tNote = TupletCString( KEY_NOTE, &note[0] );
-		Tuplet tSyncTime = TupletCString( KEY_UPDATED, &syncTime[0] );
-		
-		int result = app_message_outbox_begin(&iter);
-		assert( APP_MSG_OK == result, "Error: outbox failed" );
-		dict_write_tuplet(iter, &tCode);
-		dict_write_tuplet(iter, &tId );
-		dict_write_tuplet(iter, &tTitle);
-		dict_write_tuplet(iter, &tNote);
-		dict_write_tuplet(iter, &tSyncTime );
-		app_message_outbox_send();
-	}
-	
-	{
-		Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK_END );
-		int result = app_message_outbox_begin(&iter);
-		assert( APP_MSG_OK == result, "Error: outbox failed" );
-		dict_write_tuplet(iter, &tCode);
-		app_message_outbox_send();
-	}
+}
+
+void SendCodeToPhone( int code )
+{
+	DictionaryIterator *iter;
+	int result = app_message_outbox_begin(&iter);
+	assert( APP_MSG_OK == result, "Error: outbox failed" );
+	Tuplet tCode = TupletInteger( KEY_CODE, code );
+	dict_write_tuplet( iter, &tCode );
+	app_message_outbox_send();
+	return;		
 }
 
 // Send saved "refresh token" and "access token" if possible
@@ -316,7 +307,31 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		SentListToPhone();
 		SentTasksToPhone();
 		return;
+	} else if( code == CODE_SEND_LIST_ACK ) {
+		if ( 0 == offline_get_list_length() )
+		{
+			SendCodeToPhone( CODE_SYNC_LIST );
+		}
+		else
+		{
+			SentTaskToPhone( 0 );
+			gTaskSendingIndex = 1;
+		}
+		return;
+	} else if ( CODE_SEND_TASK_ACK == code ) {
+		if ( gTaskSendingIndex >= offline_get_list_length() )
+		{
+			SendCodeToPhone( CODE_SEND_TASK_END );
+		}
+		else 
+		{
+			SentTaskToPhone( gTaskSendingIndex++ );
+		}
+		return;
+	} else if ( CODE_SEND_TASK_END_ACK == code ) {
+		SendCodeToPhone( CODE_SYNC_LIST );
 	}
+
 
 	tScope = dict_find(iter, KEY_SCOPE);
 	assert(tScope, "No scope!");
@@ -449,12 +464,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 	} else if ( CODE_SEND_TASK_END == code ) {
 		comm_array_size = -1; // no current array
 		sb_hide(); // hide load percentage
-	} else if ( CODE_SEND_TASK_END_ACK == code ) {	//phone ackonlege tasks received
-		DictionaryIterator *iter;
-		app_message_outbox_begin(&iter);
-		Tuplet code = TupletInteger( KEY_CODE, CODE_SYNC_LIST );
-		dict_write_tuplet( iter, &code );
-		app_message_outbox_send();
+		ts_show_pebble();
 	} else {
 		LOG("Unexpected message code: %d", code);
 	}
