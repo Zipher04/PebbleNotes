@@ -36,7 +36,7 @@ void offline_read_list_pebble( void )
 		offline_get_task_note( taskId, note, noteLengthMax );
 		ts_set_item( taskId, (TS_Item){
 				.id = taskId,
-				.done = offline_is_task_done( taskId),
+				.done = offline_get_task_status( taskId),
 				.title = title,
 				.notes = note,
 			});
@@ -70,18 +70,6 @@ int offline_get_list_length( void )
 {
 	//will be 0 if not set
 	return persist_read_int( PERSIST_LIST_LENGTH );
-}
-
-/**
- * Set list is modified. Will be checked before sync.
- */
-void offline_set_list_modified( int modified )
-{
-	persist_write_int( PERSIST_LIST_MODIFIED, modified );
-}
-int offline_is_list_modified( void )
-{
-	return persist_read_int( PERSIST_LIST_MODIFIED ) == 0 ? 0 : 1;
 }
 
 /**
@@ -159,7 +147,7 @@ void offline_set_task_done( int i, int done )
 	assert( i < c_list_length_max && i >= 0, "Invalid task index" );
 	persist_write_int( i*c_task_shift_size + PERSIST_TASK_DONE_0, done == 0 ? 0 : 1 );
 }
-int offline_is_task_done( int i )
+int offline_get_task_status( int i )
 {
 	return persist_read_int( i*c_task_shift_size + PERSIST_TASK_DONE_0 ) == 0 ? 0 : 1;
 }

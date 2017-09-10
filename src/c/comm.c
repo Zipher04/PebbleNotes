@@ -15,6 +15,7 @@ static CommJsReadyCallback comm_js_ready_cb;
 static void *comm_js_ready_cb_data;
 static int comm_array_size = -1;
 static int g_comm_last_query_listId = -1;
+static bool syncOk = false;
 
 static bool comm_is_bluetooth_available() {
 	if(!bluetooth_connection_service_peek()) {
@@ -234,9 +235,9 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		Tuple *tOptionVal = dict_find(iter, KEY_OPTION_VALUE);
 		options_update(tOptionId->value->int32, tOptionVal->value->int32);
 		return;
-	} else if(code == CODE_READY) { // JS just loaded
+	} else if( code == CODE_READY ) { // JS just loaded
 		comm_js_ready = true;
-		if(comm_js_ready_cb) {
+		if( comm_js_ready_cb ) {
 			LOG("JS Ready Callback awaiting, calling");
 			comm_js_ready_cb(comm_js_ready_cb_data);
 		}
@@ -337,6 +338,47 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 	} else if(code == CODE_ARRAY_END) {
 		comm_array_size = -1; // no current array
 		sb_hide(); // hide load percentage
+	} else if ( CODE_SEND_LIST == code ) {
+		char *id = dict_find( iter, KEY_ID )->value->cstring;
+		offline_set_list_id( id );
+		int length = dict_find( iter, KEY_LENGTH )->value->int32;
+		offline_set_list_length( length );
+		char *updated = dict_find( iter, KEY_UPDATED )->value->cstring;
+		offline_set_list_sync_time( update );
+		comm_array_size = length;
+		sb_show( "Loading task from phone..." );
+	} else if ( CODE_SEND_TASK_START == code ) {
+		
+	} else if ( CODE_SEND_LIST == code ) {
+		assert( comm_array_size > 0, "Unexpected array_item!" );
+		int i = (int)dict_find( iter, KEY_ITEM )->value->int32;
+		assert( i < comm_array_size, "Index %d exceeds size %d", i, comm_array_size);
+		snprintf( sb_printf_get(), 32, "Loading... %d%%", 100 * (i+1) / comm_array_size );
+		sb_printf_update();
+		LOG("Statusbar Updated: %d", 100 * (i+1) / comm_array_size );
+		
+		char *id 	= dict_find( iter, KEY_ID	)->value->cstring;
+		char *title = dict_find( iter, KEY_TITLE)->value->cstring;
+		char *note 	= dict_find( iter, kEY_NOTE	)->value->cstring;
+		int  done 	= dict_find( iter, KEY_DONE	)->value->int32;
+		char *updated = dict_find( iter, KEY_UPDATED )->value->cstring;
+		
+		LOG("Item No %d: Id=%s, title=%s, note=%s, done=%d, updated=%s", i, id, title, note, done, updated );
+		
+		offline_set_task_id( i, id );
+		offline_set_task_title( i, title );
+		offline_set_task_note( i, note );
+		offline_set_task_done( i, done );
+		offline_set_task_update_time( i, updated );
+	} else if ( CODE_SEND_TASK_END == code ) {
+		comm_array_size = -1; // no current array
+		sb_hide(); // hide load percentage
+	} else if ( CODE_SEND_TASK_END_ACK == code ) {	//phone ackonlege tasks received
+		DictionaryIterator *iter;
+		app_message_outbox_begin(&iter);
+		Tuplet code = TupletInteger( KEY_CODE, CODE_SYNC_LIST );
+		dict_write_tuplet( iter, &code );
+		app_message_outbox_send();
 	} else {
 		LOG("Unexpected message code: %d", code);
 	}
@@ -362,38 +404,98 @@ void comm_deinit() {
 	app_message_deregister_callbacks();
 }
 
-void comm_query_list_cb(void *arg) {
-	comm_query_list();
+void TrySyncWithPhoneCallBack(void *arg) {
+	TrySyncWithPhone();
 }
 
 //==========================================================
 // Watch send
 //==========================================================
-void comm_query_list( void )
-{
+void SentListToPhone( void ) {
+	int listLength = offline_get_list_length();
+	if ( listLength <= 0 )
+		return;
+	
+	char id[35], syncTime[26];
+	offline_get_list_id( id, 35 );
+	offline_get_list_sync_time( syncTime, 26 );
+	
+	DictionaryIterator *iter;
+	Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_LIST );
+	Tuplet tId = TupletCString( KEY_ID, id );
+	Tuplet tLength = TupletInteger( KEY_LENGTH, listLength );
+	Tuplet tSyncTime = TupletCString( KEY_UPDATED, syncTime );
+	
+
+	app_message_outbox_begin(&iter);
+	dict_write_tuplet(iter, &tCode);
+	dict_write_tuplet(iter, &tId );
+	dict_write_tuplet(iter, &tLength );
+	dict_write_tuplet(iter, &tSyncTime );
+	app_message_outbox_send();
+}
+
+void SentTasksToPhone( void ) {
+	int listLength = offline_get_list_length();
+	if ( listLength <= 0 )
+		return;
+	
+	DictionaryIterator *iter;
+	Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK_START );
+	app_message_outbox_begin(&iter);
+	dict_write_tuplet(iter, &tCode);
+	app_message_outbox_send();
+	
+	char id[SIZE_TASK_ID], title[SIZE_TASK_TITLE], note[SIZE_TASK_NOTE], syncTime[SIZE_TIME];
+	
+	for ( int i = 0 ; i < listLength ; ++i )
+	{
+		offline_get_task_id( i, id, SIZE_TASK_ID );
+		offline_get_task_title( i, title, SIZE_TASK_TITLE );
+		offline_get_task_note( i, note, SIZE_TASK_NOTE );
+		offline_get_list_sync_time( syncTime, SIZE_TIME );
+		
+		DictionaryIterator *iter;
+		Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK );
+		Tuplet tId = TupletCString( KEY_ID, id );
+		Tuplet tLength = TupletInteger( KEY_LENGTH, listLength );
+		Tuplet tSyncTime = TupletCString( KEY_UPDATED, syncTime );
+		
+		app_message_outbox_begin(&iter);
+		dict_write_tuplet(iter, &tCode);
+		dict_write_tuplet(iter, &tId );
+		dict_write_tuplet(iter, &tLength );
+		dict_write_tuplet(iter, &tSyncTime );
+		app_message_outbox_send();
+	}
+	
+	DictionaryIterator *iter;
+	Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK_END );
+	app_message_outbox_begin(&iter);
+	dict_write_tuplet(iter, &tCode);
+	app_message_outbox_send();
+}
+
+void TrySyncWithPhone( void ) {
 	if ( !comm_is_bluetooth_available() )
 	{
 		offline_read_list_pebble();
-		sb_show( "offline tasks" );
+		console.log( "offline mode" );
+		syncOk = true;
 		return;
 	}
 	if( !comm_js_ready ) {
-		comm_js_ready_cb = comm_query_list_cb;
+		comm_js_ready_cb = TrySyncWithPhoneCallBack;
 		comm_js_ready_cb_data = "";
 		comm_is_available(); // show message if needed
 		return;
 	}
 
-	if(!comm_is_available())
-	{
-		return;
-	}
-	sb_show("Connecting...");
-	
-	DictionaryIterator *iter;
-	Tuplet code = TupletInteger( KEY_CODE, CODE_SYNC_LIST );
+	sb_show("Syncing...");
+	SentListToPhone();
+	SentTasksToPhone();
+}
 
-	app_message_outbox_begin(&iter);
-	dict_write_tuplet(iter, &code);
-	app_message_outbox_send();
+int IsSyncOK( void ) {
+	return syncOk;
 }

@@ -26,6 +26,13 @@ enum {
 	KEY_OPTION_ID = 45, // int
 	KEY_OPTION_VALUE = 46, // int or bool
 	KEY_ERROR = 50, // string: error text
+	
+	KEY_ID = 51,
+	KEY_LENGTH = 52,
+	KEY_UPDATED = 53,
+	KEY_DONE = 54,
+	KEY_TITLE = 55,
+	kEY_NOTE = 56,
 };
 // Message codes in KEY_CODE
 enum {
@@ -47,6 +54,7 @@ enum {
 	CODE_SEND_TASK_START = 53,
 	CODE_SEND_TASK = 54,
 	CODE_SEND_TASK_END = 55,
+	CODE_SEND_TASK_END_ACK = 56,
 };
 // Message scopes
 enum {
@@ -66,8 +74,7 @@ enum EPersistStorageIndex
 
 	PERSIST_LIST_ID = 10,
 	PERSIST_LIST_LENGTH = 11,
-	PERSIST_LIST_MODIFIED = 12,
-	PERSIST_LIST_SYNC_TIME = 13,
+	PERSIST_LIST_SYNC_TIME = 12,
 
 	PERSIST_TASK_ID_0 = 20,		//string
 	PERSIST_TASK_DONE_0,		//int: 0:uncheck, 1:checked
@@ -75,6 +82,14 @@ enum EPersistStorageIndex
 	PERSIST_TASK_NOTE_0,		//string
 	PERSIST_TASK_UPDATE_TIME_0,	//string RFC3339
 	PERSIST_TASK_END,			//posistion holder 
+};
+
+enum
+{
+	SIZE_TASK_ID = 46,
+	SIZE_TASK_TITLE = 50,
+	SIZE_TASK_NOTE = 50,
+	SIZE_TIME = 26
 };
 
 #endif

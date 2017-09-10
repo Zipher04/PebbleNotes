@@ -15,6 +15,11 @@ static void init(void) {
 	ti_init();
 	sb_init();
 	
+	TrySyncWithPhone();
+	
+	while ( !IsSyncOK( void ) )
+		Sleep(50);
+	
 	ts_show_pebble();
 	// others...
 }

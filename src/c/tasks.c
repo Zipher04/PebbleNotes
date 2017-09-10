@@ -422,7 +422,28 @@ void ts_show_pebble( void ) {
 	listTitle = "Pebble";
 	LOG("ts show called");
 	window_stack_push(wndTasks, true);
-	if(ts_count < 0)
-		comm_query_list();
+	int taskLength = offline_get_list_length();
+	ts_set_count( taskLength );
+	for ( int i = 0 ; i < taskLength ; ++i )
+	{
+		char title[SIZE_TASK_TITLE], note[SIZE_TASK_NOTE];
+		int done = offline_get_task_status( i );
+		
+		if ( -1 == done )
+		{	//do not show deletec tasks
+			continue;
+		}
+		
+		offline_get_task_title( i, title, SIZE_TASK_TITLE );
+		offline_get_task_note( i, note, SIZE_TASK_NOTE );
+		
+		ts_set_item(i, (TS_Item){
+				.id = i,
+				.done = done,
+				.title = title,
+				.notes = notes,
+			});
+	}
+	
 	LOG("ts show returned");
 }

@@ -36,12 +36,6 @@ void offline_set_list_length( int length );
 int offline_get_list_length( void );
 
 /**
- * Set list is modified. Will be checked before sync.
- */
-void offline_set_list_modified( int modified );
-int offline_is_list_modified( void );
-
-/**
  * Read last sync time. Will be "" if never synced.
  */
 void offline_set_list_sync_time( char* time );
@@ -67,10 +61,10 @@ void offline_set_task_note( int i, char* note );
 void offline_get_task_note( int i, char* note, int length );
  
 /**
- * @para done: 0:unchecked, 1:checked
+ * @para done: 0:unchecked, 1:checked, -1: deleted
  */
 void offline_set_task_done( int i, int done );
-int offline_is_task_done( int i );
+int offline_get_task_status( int i );
 
 /**
  * The time the task is last modified. Will be "" if never synced

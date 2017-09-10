@@ -40,4 +40,7 @@ bool comm_is_available_silent(); // don't update statusbar
 void comm_init();
 void comm_deinit();
 
+void TrySyncWithPhone( void );
+int IsSyncOK( void );
+
 #endif
