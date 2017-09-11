@@ -720,10 +720,12 @@ function SendListToWatch( list ) {
 
 function GoogleTaskUpdate ( task ) {
 	var taskobj = {
+		id: task.id,
 		title: task.title,
-		note: task.note,
+		notes: task.notes,
 		status: task.status,
-		updated: task.updated
+		updated: task.updated,
+		completed: null
 	};
 	var taskJson = JSON.stringify(taskobj);
 	console.log( "Google task updating: " + taskJson );
@@ -736,7 +738,7 @@ function GoogleTaskUpdate ( task ) {
 function GoogleTaskCreate( task ) {
 	var taskobj = {
 		title: task.title,
-		note: task.note,
+		notes: task.notes,
 		status: task.statsus,
 		updated: task.updated
 	};
@@ -778,7 +780,7 @@ function DeleteTaskFromList( list, task ) {
 function CopyTask( target, source ) {
 	target.id = source.id;
 	target.title = source.title;
-	target.note = source.note;
+	target.notes = source.notes;
 	target.status = source.status;
 	target.updated = source.updated;
 }
