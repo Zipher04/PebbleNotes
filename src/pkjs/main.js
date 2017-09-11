@@ -335,6 +335,28 @@ function strcmp(a, b) {
 	return 0;
 }
 
+/**
+ * Compare two strings; for array sorting.
+ * @return 1: string1 is newer, -1: string1 is older, 0: equal
+ */
+function IsoDateStringCompare( string1, string2 ) {
+	var date1 = new Date( string1 );
+	var date2 = new Date( string2 );
+	var newer = date1 - date2;
+	console.log( "data1:" + date1 );
+	console.log( "data2:" + date2 );
+	console.log( "newer:" + newer );
+	if ( newer > 0 )
+		return 1;
+	else if ( newer < 0 )
+		return -1;
+	else if ( 0 == newer )
+		return 0;
+	else
+		console.log( "Error: invalid date" );
+}
+
+
 /* Main logic */
 function doGetAllLists() {
 	console.log("Querying all tasklists");
@@ -660,13 +682,13 @@ function GetTasksFromGoogle() {
 			tasks.pop(); // don't show it
 		console.log( "Syncing watch and google..." );
 		SyncWatchAndGoogle();
-		console.log( "Sendinf list to watch..." );
-		SendListToWatch( g_google_list );
+		
+		SendListToWatch( g_watch_list );
 	});
 }
 
 function SendListToWatch( list ) {
-	
+	console.log( "Sending list to watch: " + JSON.stringify(g_watch_list) );
 	sendMessage({
 			code: 52, //Send list
 			id: list.id,
@@ -705,7 +727,7 @@ function GoogleTaskUpdate ( task ) {
 	};
 	var taskJson = JSON.stringify(taskobj);
 	console.log( "Google task updating: " + taskJson );
-	queryTasks("lists/"+g_watch_list.id+"/tasks/"+task.id, null, function(d) {
+	queryTasks('lists/'+g_watch_list.id+'/tasks/'+task.id, null, function(d) {
 		console.log("Google task updated: : "+ JSON.stringify(d) );
 		assert(d.id == task.id, "Task ID mismatch!!?");
 	}, "PATCH", taskJson);
@@ -800,25 +822,27 @@ function SyncWatchAndGoogle() {
 		if ( gTaskIndex === null )
 		{	//googel deleted task
 			console.log("watch only, deleting watch task");
-			DeleteTaskFromList( g_watch_list, task );
+			//DeleteTaskFromList( g_watch_list, task );
+			task.status = "deleted";
 			continue;
 		}
 		
 		var gTask = g_google_list.tasks[gTaskIndex];
 		console.log( "Comparing with google task:" + JSON.stringify( gTask ) );
 		DeleteTaskFromList( g_google_list, gTask );
-		if ( gTask.updated > task.update )
+		var gTaskIsNewer = IsoDateStringCompare( gTask.updated, task.updated );
+		if ( gTaskIsNewer > 0 )
 		{	//google is newer
 			console.log("google task is newer");
 			CopyTask( task, gTask );
 		}
-		else if ( gTask.updated < task.update )
+		else if ( gTaskIsNewer < 0 )
 		{	//watch is newer
 			if ( task.status == 'deleted')
 			{	//task deleted
 				console.log("watch task is newer, deleting google");
 				GoogleTaskDelete( task );
-				DeleteTaskFromList( g_watch_list, task );
+				//DeleteTaskFromList( g_watch_list, task );
 			}
 			else 
 			{	//task updated
@@ -826,9 +850,18 @@ function SyncWatchAndGoogle() {
 				GoogleTaskUpdate( task );
 			}
 		}
-		console.log("watch task equal to google");
+		else
+		{
+			console.log("watch task equal to google");
+		}
 	}	//end for( var task in g_watch_list.tasks )
-		
+	
+	for ( var i = g_watch_list.length-1 ; i >= 0 ; --i )
+	{
+		if ( g_watch_list.tasks[i].status == "deleted" )
+			g_watch_list.tasks.splice( i, 1 );
+	}
+	
 	for( var gIndex in g_google_list.tasks )
 	{
 		var gtask = g_google_list.tasks[gIndex];
