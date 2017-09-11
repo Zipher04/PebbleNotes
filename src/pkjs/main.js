@@ -750,7 +750,7 @@ function FindTask( list, taskId ) {
 function DeleteTaskFromList( list, task ) {
 	var taskIndex = list.tasks.indexOf( task );
 	if ( taskIndex >= 0 )
-		g_watch_list.tasks.splice( taskIndex, 1 );
+		list.tasks.splice( taskIndex, 1 );
 }
 
 function CopyTask( target, source ) {
@@ -762,7 +762,6 @@ function CopyTask( target, source ) {
 }
 
 function SyncWatchAndGoogle() {
-	
 	console.log( "watch list:" + JSON.stringify( g_watch_list ) );
 	console.log( "Google list:" + JSON.stringify( g_google_list ) );
 	if ( g_google_list === null )
@@ -782,9 +781,15 @@ function SyncWatchAndGoogle() {
 		return;
 	}
 		
-	for( var task in g_watch_list.tasks )
+	for( var index in g_watch_list.tasks )
 	{
+		var task = g_watch_list.tasks[index];
 		console.log( "Comparing watch task:" + JSON.stringify( task ) );
+		/*console.log( "id:" + task.id );
+		console.log( "title:" + task.title );
+		console.log( "notes:" + task.notes );
+		console.log( "updated:" + task.updated );
+		console.log( "status:" + task.status );*/
 		if ( task.id === null )
 		{	//watch new task
 			console.log("watch no id, creating google task");
@@ -821,16 +826,19 @@ function SyncWatchAndGoogle() {
 				GoogleTaskUpdate( task );
 			}
 		}
+		console.log("watch task equal to google");
 	}	//end for( var task in g_watch_list.tasks )
 		
-	for( var gtask in g_google_list.tasks )
+	for( var gIndex in g_google_list.tasks )
 	{
+		var gtask = g_google_list.tasks[gIndex];
 		console.log( "Adding google only task:" + JSON.stringify( gtask ) );
 		g_watch_list.tasks.push( gtask );
-		DeleteTaskFromList( g_google_list, gtask );
+		//DeleteTaskFromList( g_google_list, gtask );
 	}
 	
-	g_watch_list.synced = Date().toISOString();
+	var date = new Date();
+	g_watch_list.synced = date.toISOString();
 }
 
 /* Initialization */
@@ -1018,12 +1026,12 @@ Pebble.addEventListener("appmessage", function(e) {
 		g_watch_list.id = e.payload.id;
 		g_watch_list.updated = e.payload.updated;
 		g_watch_list.length = e.payload.length;
+		g_watch_list.tasks = [];
 		console.log( "js get list" );
 		sendMessage({code: 56}); //acknoledge
 		break;
 	case 53:	//watch sent task start
 		g_task_sending_index = 0;
-		g_watch_list.tasks = {};
 		console.log( "js get task start" );
 		sendMessage({code: 57}); //acknoledge
 		break;
@@ -1031,7 +1039,7 @@ Pebble.addEventListener("appmessage", function(e) {
 		g_watch_list.tasks[g_task_sending_index] = {};
 		g_watch_list.tasks[g_task_sending_index].id 	= e.payload.id;
 		g_watch_list.tasks[g_task_sending_index].title 	= e.payload.title;
-		g_watch_list.tasks[g_task_sending_index].note 	= e.payload.note;
+		g_watch_list.tasks[g_task_sending_index].notes 	= e.payload.notes;
 		g_watch_list.tasks[g_task_sending_index].updated= e.payload.updated;
 		console.log( "js get task item" );
 		sendMessage({code: 58}); //acknoledge
