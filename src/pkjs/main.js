@@ -1014,7 +1014,10 @@ Pebble.addEventListener("appmessage", function(e) {
 		GetListFromGoogle();
 		break;
 	case 52:	//watch sent list
-		g_watch_list = e.payload;
+		g_watch_list = {};
+		g_watch_list.id = e.payload.id;
+		g_watch_list.updated = e.payload.updated;
+		g_watch_list.length = e.payload.length;
 		console.log( "js get list" );
 		sendMessage({code: 56}); //acknoledge
 		break;
@@ -1025,6 +1028,7 @@ Pebble.addEventListener("appmessage", function(e) {
 		sendMessage({code: 57}); //acknoledge
 		break;
 	case 54:	//watch sent task
+		g_watch_list.tasks[g_task_sending_index] = {};
 		g_watch_list.tasks[g_task_sending_index].id 	= e.payload.id;
 		g_watch_list.tasks[g_task_sending_index].title 	= e.payload.title;
 		g_watch_list.tasks[g_task_sending_index].note 	= e.payload.note;
