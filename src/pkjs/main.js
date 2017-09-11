@@ -1025,7 +1025,10 @@ Pebble.addEventListener("appmessage", function(e) {
 		sendMessage({code: 57}); //acknoledge
 		break;
 	case 54:	//watch sent task
-		g_watch_list.tasks[g_task_sending_index] = e.payload;
+		g_watch_list.tasks[g_task_sending_index].id 	= e.payload.id;
+		g_watch_list.tasks[g_task_sending_index].title 	= e.payload.title;
+		g_watch_list.tasks[g_task_sending_index].note 	= e.payload.note;
+		g_watch_list.tasks[g_task_sending_index].updated= e.payload.updated;
 		console.log( "js get task item" );
 		sendMessage({code: 58}); //acknoledge
 		switch ( e.payload.done )
