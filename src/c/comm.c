@@ -167,7 +167,6 @@ void SentListToPhone( void ) {
 	Tuplet tLength = TupletInteger( KEY_LENGTH, listLength );
 	Tuplet tSyncTime = TupletCString( KEY_UPDATED, &syncTime[0] );
 	
-
 	int result = app_message_outbox_begin(&iter);
 	assert( APP_MSG_OK == result, "Error: outbox failed" );
 	dict_write_tuplet(iter, &tCode);
@@ -175,6 +174,7 @@ void SentListToPhone( void ) {
 	dict_write_tuplet(iter, &tLength );
 	dict_write_tuplet(iter, &tSyncTime );
 	app_message_outbox_send();
+	sb_show( "Sending list.." );
 }
 
 void SentTaskToPhone( int taskIndex ) 
@@ -203,6 +203,8 @@ void SentTaskToPhone( int taskIndex )
 	dict_write_tuplet(iter, &tDone);
 	dict_write_tuplet(iter, &tUpdateTime );
 	app_message_outbox_send();
+	snprintf( sb_printf_get(), 32, "Sending task %d...", taskIndex );
+	sb_printf_update();
 }
 
 void SendCodeToPhone( int code )
@@ -312,6 +314,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		if ( 0 == offline_get_list_length() )
 		{
 			SendCodeToPhone( CODE_SYNC_LIST );
+			sb_show("Sync request sent");
 		}
 		else
 		{
@@ -505,7 +508,7 @@ void comm_deinit() {
 //==========================================================
 
 void TrySyncWithPhone( void ) {
-	if ( !comm_is_bluetooth_available() )
+	if ( !bluetooth_connection_service_peek() )
 	{
 		//offline_read_list_pebble();
 		LOG( "offline mode" );
