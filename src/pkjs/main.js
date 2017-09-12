@@ -11,7 +11,7 @@ var g_options = {
 	"sort_due": false, // false, "asc", "desc"
 	"sort_alpha": false,
 	"large_font": false,
-	"task_actions_position": 2, // 0=off, 1=top, 2=bottom
+	"task_actions_position": 1, // 0=off, 1=top, 2=bottom
 };
 
 var g_option_ids = {
