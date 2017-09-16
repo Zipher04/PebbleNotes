@@ -106,7 +106,12 @@ void offline_set_task_id( int i, char* id )
 void offline_get_task_id( int i, char* id, int length )
 {
 	const int target = i*c_task_shift_size + PERSIST_TASK_ID_0;
-	assert( persist_exists(target), "Read task with invalid index" );
+	assert( length > 0, "Length <= 0" );
+	if ( !persist_exists(target) )
+	{
+		id[0] = '\0';
+		return;
+	}
 	assert( length > persist_get_size( target ), "Length for task id too small" );
 	persist_read_string( target, id, length );
 }
@@ -122,7 +127,12 @@ void offline_set_task_title( int i, char* title )
 void offline_get_task_title( int i, char* title, int length )
 {
 	const int target = i*c_task_shift_size + PERSIST_TASK_TITLE_0;
-	assert( persist_exists(target), "Read task with invalid index" );
+	assert( length > 0, "Length <= 0" );
+	if ( !persist_exists(target) )
+	{
+		title[0] = '\0';
+		return;
+	}
 	assert( length > persist_get_size( target ), "Length for task title too small" );
 	persist_read_string( target, title, length );
 }
@@ -138,7 +148,12 @@ void offline_set_task_note( int i, char* note )
 void offline_get_task_note( int i, char* note, int length )
 {
 	const int target = i*c_task_shift_size + PERSIST_TASK_NOTE_0;
-	assert( persist_exists(target), "Read task with invalid index" );
+	assert( length > 0, "Length <= 0" );
+	if ( !persist_exists(target) )
+	{
+		note[0] = '\0';
+		return;
+	}
 	assert( length > persist_get_size( target ), "Length for task note too small" );
 	persist_read_string( target, note, length );
 }

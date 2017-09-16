@@ -8,6 +8,7 @@
 #include "consts.h"
 #include "offline.h"
 #include "isoTime.h"
+#include "tertiary_text.h"
 
 #ifdef BIGGER_FONT
 #define CUSTOM_FONT "RESOURCE_ID_GOTHIC_24_BOLD"
@@ -52,16 +53,42 @@ static void ts_create_task_cb(DictationSession *session, DictationSessionStatus 
 
 	dictation_session_destroy(session);
 }
+#endif
+
 static void ts_create_task() {
 	// for now, only dictation is supported,
 	// thus in #ifdef block
+	
+	char* title = 0;
+	tertiary_text_prompt( "Input task title", SaveToExtra, title );
+	if ( title == 0 )
+		return;
+	if ( title[0] == '\0' )
+		return;
+	
+	char time[30];
+	GetIsoTime( time, 30 );
+	int index = offline_get_list_length() + 1;
+	
+	offline_set_task_title( index, title );
+	offline_set_task_update_time( index, time );
+	offline_set_list_length( index );
+	ts_append_item((TS_Item){
+			.id = index,
+			.done = 0,
+			.title = title,
+			.notes = 0,
+		});
+	free(title);
+	/* dictation
 	session = dictation_session_create(0, ts_create_task_cb, NULL);
 	assert_oom(session, "Could not create dictation session");
 	dictation_session_enable_confirmation(session, true);
 	dictation_session_enable_error_dialogs(session, true);
 	dictation_session_start(session);
+	*/
 }
-#endif
+
 
 static uint16_t ts_get_num_sections_cb(MenuLayer *ml, void *context) {
 #ifdef PBL_MICROPHONE
