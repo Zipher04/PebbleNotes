@@ -1,3 +1,4 @@
+#pragma once
 #include <pebble.h>
 
 // A callback which is called when a user submits data
@@ -17,3 +18,8 @@ typedef void(* TertiaryTextCallback)( const char* result, size_t result_length, 
 // extra - Some extra data to pass to the callback
 //
 void tertiary_text_prompt( const char* title, TertiaryTextCallback callback, void* extra );
+
+// Save the result to extra
+//
+// Cast extra to char* Free and reallocate extra if extra is not null.
+void SaveToExtra( const char* result, size_t result_length, void* extra );
