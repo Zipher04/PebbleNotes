@@ -868,6 +868,8 @@ function SyncWatchAndGoogle() {
 	{
 		var gtask = g_google_list.tasks[gIndex];
 		console.log( "Adding google only task:" + JSON.stringify( gtask ) );
+		if ( gtask.title === "" )
+			continue;
 		g_watch_list.tasks.push( gtask );
 		//DeleteTaskFromList( g_google_list, gtask );
 	}
