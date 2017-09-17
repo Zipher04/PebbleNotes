@@ -105,6 +105,15 @@ static void ts_create_task() {
 	*/
 }
 
+static void ts_create_task_dictation()
+{
+	session = dictation_session_create(0, ts_create_task_cb, NULL);
+	assert_oom(session, "Could not create dictation session");
+	dictation_session_enable_confirmation(session, true);
+	dictation_session_enable_error_dialogs(session, true);
+	dictation_session_start(session);
+}
+
 
 static uint16_t ts_get_num_sections_cb(MenuLayer *ml, void *context) {
 #ifdef PBL_MICROPHONE
@@ -256,7 +265,10 @@ static void ts_select_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
 static void ts_select_long_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
 #ifdef PBL_MICROPHONE
 	if(idx->section == options_task_actions_position() - 1) // actions
+	{
+		ts_create_task_dictation();
 		return;
+	}
 #endif
 
 	if(ts_max_count == 0 || idx->row >= ts_count)
