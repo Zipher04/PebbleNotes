@@ -68,7 +68,7 @@ void main_window_load(Window *window) {
 	s_menu_section[sectionId++] = (SimpleMenuSection) {
 		.title = "Actions",
 		.items = s_menu_item,
-		.num_items = 2,
+		.num_items = ITEM_SIZE,
 	};
 	assert( sectionId == SECTION_SIZE, "Menu section count not match" );
 	
