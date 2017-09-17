@@ -816,6 +816,10 @@ function SyncWatchAndGoogle() {
 		console.log( "status:" + task.status );*/
 		if ( task.id === "" )
 		{	//watch new task
+			if ( task.status == "deleted" )
+			{	//task deleted before sync
+				continue;
+			}
 			console.log("watch no id, creating google task");
 			GoogleTaskCreate( task );
 			continue;
