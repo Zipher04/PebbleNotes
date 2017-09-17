@@ -65,19 +65,18 @@ typedef struct {
 static STertiaryInputExtra tertiaryInputCallBackData;
 
 void TertiaryCreatTaskCallBack( const char* result, size_t result_length, int index ) {
-	
-	
+		
 	char time[30];
 	GetIsoTime( time, 30 );
-	index = offline_get_list_length() + 1;
+	index = offline_get_list_length();
 	
-	offline_set_task_title( index, title );
+	offline_set_task_title( index, (char*)result );
 	offline_set_task_update_time( index, time );
-	offline_set_list_length( index );
+	offline_set_list_length( index+1 );
 	ts_append_item((TS_Item){
 			.id = index,
 			.done = 0,
-			.title = title,
+			.title = (char*)result,
 			.notes = 0,
 		});
 }
@@ -87,14 +86,14 @@ void TertiaryCallBack( const char* result, size_t result_length, void* extra )
 	LOG( "Tertiary result: %s", result );
 	if ( 0 == result_length )
 		return;
-	tertiaryInputCallBackData.function( result, result_length, tertiaryInputCallBackData.index );
+	tertiaryInputCallBackData.function( result, result_length, tertiaryInputCallBackData.taskIndex );
 }
 
 static void ts_create_task() {
 	// for now, only dictation is supported,
 	// thus in #ifdef block
-	tertiaryInputExtra.index = 0;
-	tertiaryInputExtra.function = TertiaryCreatTaskCallBack;
+	tertiaryInputCallBackData.taskIndex = 0;
+	tertiaryInputCallBackData.function = TertiaryCreatTaskCallBack;
 	tertiary_text_prompt( "Input task title", TertiaryCallBack, 0 );
 	
 	/* dictation
@@ -166,9 +165,9 @@ static void ts_draw_header_cb(GContext *ctx, const Layer *cell_layer, uint16_t s
 static void ts_twoline_cell_draw(GContext *ctx, const Layer *layer, char *title, GBitmap *icon, bool is_done) {
 	char *buf = NULL;
 	if(icon) {
-		LOG("Title: %p", title);
-		LOG("as str: %s", title);
-		LOG("len: %d", strlen(title));
+		//LOG("Title: %p", title);
+		//LOG("as str: %s", title);
+		//LOG("len: %d", strlen(title));
 		buf = malloc(strlen(title) + ICON_SPACES + 1);
 		assert_oom(buf, "OOM while allocating draw buffer!");
 		if(!buf)

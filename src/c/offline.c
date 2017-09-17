@@ -49,7 +49,8 @@ void offline_read_list_pebble( void )
  */
 void offline_set_list_id( char* id )
 {
-	persist_write_string( PERSIST_LIST_ID, id );
+	int byteWriten = persist_write_string( PERSIST_LIST_ID, id );
+	assert( byteWriten > 0, "persist write failed.");
 }
 void offline_get_list_id( char* id, int length )
 {
@@ -68,7 +69,8 @@ void offline_get_list_id( char* id, int length )
 void offline_set_list_length( int length )
 {
 	assert( length < c_list_length_max, "list length too large" );
-	persist_write_int( PERSIST_LIST_LENGTH, length );
+	int byteWriten = persist_write_int( PERSIST_LIST_LENGTH, length );
+	assert( byteWriten > 0, "persist write failed.");
 }
 int offline_get_list_length( void )
 {
@@ -81,7 +83,8 @@ int offline_get_list_length( void )
  */
 void offline_set_list_sync_time( char* time )
 {
-	persist_write_string( PERSIST_LIST_SYNC_TIME, time );
+	int byteWriten = persist_write_string( PERSIST_LIST_SYNC_TIME, time );
+	assert( byteWriten > 0, "persist write failed.");
 }
 void offline_get_list_sync_time( char* time, int length )
 {
@@ -101,7 +104,8 @@ void offline_get_list_sync_time( char* time, int length )
 void offline_set_task_id( int i, char* id )
 {
 	assert( i < c_list_length_max && i >= 0, "Invalid task index" );
-	persist_write_string( i*c_task_shift_size + PERSIST_TASK_ID_0, id );
+	int byteWriten = persist_write_string( i*c_task_shift_size + PERSIST_TASK_ID_0, id );
+	assert( byteWriten > 0, "persist write failed.");
 }
 void offline_get_task_id( int i, char* id, int length )
 {
@@ -122,7 +126,8 @@ void offline_get_task_id( int i, char* id, int length )
 void offline_set_task_title( int i, char* title )
 {
 	assert( i < c_list_length_max && i >= 0, "Invalid task index" );
-	persist_write_string( i*c_task_shift_size + PERSIST_TASK_TITLE_0, title );
+	int byteWriten = persist_write_string( i*c_task_shift_size + PERSIST_TASK_TITLE_0, title );
+	assert( byteWriten > 0, "persist write failed.");
 }
 void offline_get_task_title( int i, char* title, int length )
 {
@@ -143,7 +148,8 @@ void offline_get_task_title( int i, char* title, int length )
 void offline_set_task_note( int i, char* note )
 {
 	assert( i < c_list_length_max && i >= 0, "Invalid task index" );
-	persist_write_string( i*c_task_shift_size + PERSIST_TASK_NOTE_0, note );
+	int byteWriten = persist_write_string( i*c_task_shift_size + PERSIST_TASK_NOTE_0, note );
+	assert( byteWriten > 0, "persist write failed.");
 }
 void offline_get_task_note( int i, char* note, int length )
 {
@@ -164,7 +170,8 @@ void offline_get_task_note( int i, char* note, int length )
 void offline_set_task_status( int i, int done )
 {
 	assert( i < c_list_length_max && i >= 0, "Invalid task index" );
-	persist_write_int( i*c_task_shift_size + PERSIST_TASK_DONE_0, done );
+	int byteWriten = persist_write_int( i*c_task_shift_size + PERSIST_TASK_DONE_0, done );
+	assert( byteWriten > 0, "persist write failed.");
 }
 int offline_get_task_status( int i )
 {
@@ -177,7 +184,8 @@ int offline_get_task_status( int i )
 void offline_set_task_update_time( int i, char* time )
 {
 	const int target = i*c_task_shift_size + PERSIST_TASK_UPDATE_TIME_0;
-	persist_write_string( target, time );
+	int byteWriten = persist_write_string( target, time );
+	assert( byteWriten > 0, "persist write failed.");
 }
 void offline_get_task_update_time( int i, char* time, int length )
 {
