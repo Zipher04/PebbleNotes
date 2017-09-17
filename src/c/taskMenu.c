@@ -3,22 +3,27 @@
 #include "tasks.h"
 #include "misc.h"
 #include "statusbar.h"
+#include "offline.h"
+#include "isoTime.h"
 #include "taskMenu.h"
 
-static const int SECTION_SIZE = 1;
-static const int ITEM_SIZE = 3;
+#define SECTION_SIZE 1
+#define ITEM_SIZE 4
 
 static Window *s_window;
 static SimpleMenuLayer *s_menu_layer;
-static SimpleMenuSection s_menu_section[MENU_SIZE];
-static SimpleMenuItem s_menu_item[SECTION_SIZE];
+static SimpleMenuSection s_menu_section[SECTION_SIZE];
+static SimpleMenuItem s_menu_item[ITEM_SIZE];
 
 /* Private functions */
 static int g_currentTaskId;
 
 void TaskDelete( int index, void *context )
 {
-	offline_set_task_status( taskId, -1 );
+	char time[30];
+	GetIsoTime( time, 30 );
+	offline_set_task_status( index, -1 );
+	offline_set_task_update_time( index, time );
 	ts_reload_items();
 	window_stack_pop( true );
 }

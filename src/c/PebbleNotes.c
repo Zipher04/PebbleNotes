@@ -6,6 +6,7 @@
 #include "statusbar.h"
 #include "options.h"
 #include "misc.h"
+#include "taskMenu.h"
 
 static void init(void) {
 	options_init();
@@ -14,6 +15,7 @@ static void init(void) {
 	ts_init();
 	ti_init();
 	sb_init();
+	MenuInit();
 	//persist_write_int( 11, 0 );
 	TrySyncWithPhone();
 	// others...
@@ -21,6 +23,7 @@ static void init(void) {
 
 static void deinit(void) {
 	// others...
+	MenuDeinit();
 	sb_deinit();
 	ti_deinit();
 	ts_deinit();

@@ -279,7 +279,8 @@ static void ts_select_long_click_cb(MenuLayer *ml, MenuIndex *idx, void *context
 		return;
 	}
 	
-	menuShow( idx->row );
+	LOG("Showing menu for task %d", idx->row );
+	menuShow( ts_items[idx->row].id );
 	//TS_Item task = ts_items[idx->row];
 	//ti_show(listId, task);
 }
@@ -489,21 +490,35 @@ void ts_show_pebble( void ) {
 	listTitle = "Pebble";
 	LOG("ts show called");
 	int taskLength = offline_get_list_length();
-	ts_set_count( taskLength );
+	
+	int count = 0;
 	for ( int i = 0 ; i < taskLength ; ++i )
+	{
+		int done = offline_get_task_status( i );
+		if ( -1 == done )
+		{	//do not show deletec tasks
+			continue;
+		}
+		++count;
+	}
+	
+	ts_set_count( count );
+	int shift = 0;
+	for ( int i = 0 ; i < count ; ++i )
 	{
 		char title[SIZE_TASK_TITLE], note[SIZE_TASK_NOTE];
 		int done = offline_get_task_status( i );
 		
 		if ( -1 == done )
 		{	//do not show deletec tasks
+			++shift;
 			continue;
 		}
 		
 		offline_get_task_title( i, title, SIZE_TASK_TITLE );
 		offline_get_task_note( i, note, SIZE_TASK_NOTE );
 		
-		ts_set_item(i, (TS_Item){
+		ts_set_item(i-shift, (TS_Item){
 				.id = i,
 				.done = done,
 				.title = title,
@@ -515,6 +530,7 @@ void ts_show_pebble( void ) {
 }
 void ts_reload_items(void)
 {
-	ts_free_items();
+	if(ts_items)
+		ts_free_items();
 	ts_show_pebble();
 }
