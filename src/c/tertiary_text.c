@@ -1,16 +1,6 @@
 #include "tertiary_text.h"
  
  
-
-void SaveToExtra( const char* result, size_t result_length, void* extra )
-{
-	if ( extra )
-		free( extra );
-	extra = malloc( sizeof( char ) * ( strlen( result ) + 1) );
-	strcpy( extra, result );
-	APP_LOG( APP_LOG_LEVEL_INFO, "User typed %s", extra );
-}
- 
 // Max text limit in characters
 // You may adjust this to allow longer messages
 #define MAX_CHARS 60

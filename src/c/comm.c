@@ -467,7 +467,8 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		int  done 	= dict_find( iter, KEY_DONE	)->value->int32;
 		char *updated = dict_find( iter, KEY_UPDATED )->value->cstring;
 		
-		LOG("Item No %d: Id=%s, title=%s, note=%s, done=%d, updated=%s", i, id, title, note, done, updated );
+		// non unicode characters crash at this line for cloudpebble
+		//LOG("Item No %d: Id=%s, title=%s, note=%s, done=%d, updated=%s", i, id, title, note, done, updated );
 		
 		offline_set_task_id( item, id );
 		offline_set_task_title( item, title );

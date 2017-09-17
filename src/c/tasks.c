@@ -55,20 +55,21 @@ static void ts_create_task_cb(DictationSession *session, DictationSessionStatus 
 }
 #endif
 
-static void ts_create_task() {
-	// for now, only dictation is supported,
-	// thus in #ifdef block
+typedef void(* TertiaryInputCallback)( const char* result, size_t result_length, int index );
+
+typedef struct {
+	int taskIndex;
+	TertiaryInputCallback function;
+} STertiaryInputExtra;
+
+static STertiaryInputExtra tertiaryInputCallBackData;
+
+void TertiaryCreatTaskCallBack( const char* result, size_t result_length, int index ) {
 	
-	char* title = 0;
-	tertiary_text_prompt( "Input task title", SaveToExtra, title );
-	if ( title == 0 )
-		return;
-	if ( title[0] == '\0' )
-		return;
 	
 	char time[30];
 	GetIsoTime( time, 30 );
-	int index = offline_get_list_length() + 1;
+	index = offline_get_list_length() + 1;
 	
 	offline_set_task_title( index, title );
 	offline_set_task_update_time( index, time );
@@ -79,7 +80,23 @@ static void ts_create_task() {
 			.title = title,
 			.notes = 0,
 		});
-	free(title);
+}
+
+void TertiaryCallBack( const char* result, size_t result_length, void* extra )
+{
+	LOG( "Tertiary result: %s", result );
+	if ( 0 == result_length )
+		return;
+	tertiaryInputCallBackData.function( result, result_length, tertiaryInputCallBackData.index );
+}
+
+static void ts_create_task() {
+	// for now, only dictation is supported,
+	// thus in #ifdef block
+	tertiaryInputExtra.index = 0;
+	tertiaryInputExtra.function = TertiaryCreatTaskCallBack;
+	tertiary_text_prompt( "Input task title", TertiaryCallBack, 0 );
+	
 	/* dictation
 	session = dictation_session_create(0, ts_create_task_cb, NULL);
 	assert_oom(session, "Could not create dictation session");
