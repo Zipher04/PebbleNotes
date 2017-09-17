@@ -22,8 +22,8 @@ void TaskDelete( int index, void *context )
 {
 	char time[30];
 	GetIsoTime( time, 30 );
-	offline_set_task_status( index, -1 );
-	offline_set_task_update_time( index, time );
+	offline_set_task_status( g_currentTaskId, -1 );
+	offline_set_task_update_time( g_currentTaskId, time );
 	ts_reload_items();
 	window_stack_pop( true );
 }
