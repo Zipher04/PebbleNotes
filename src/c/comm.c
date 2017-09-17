@@ -338,6 +338,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		return;
 	} else if ( CODE_SEND_TASK_END_ACK == code ) {
 		SendCodeToPhone( CODE_SYNC_LIST );
+		return;
 	}
 
 	

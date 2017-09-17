@@ -343,9 +343,9 @@ function IsoDateStringCompare( string1, string2 ) {
 	var date1 = new Date( string1 );
 	var date2 = new Date( string2 );
 	var newer = date1 - date2;
-	console.log( "data1:" + date1 );
-	console.log( "data2:" + date2 );
-	console.log( "newer:" + newer );
+	//console.log( "data1:" + date1 );
+	//console.log( "data2:" + date2 );
+	//console.log( "newer:" + newer );
 	if ( newer > 0 )
 		return 1;
 	else if ( newer < 0 )
@@ -814,7 +814,7 @@ function SyncWatchAndGoogle() {
 		console.log( "notes:" + task.notes );
 		console.log( "updated:" + task.updated );
 		console.log( "status:" + task.status );*/
-		if ( task.id === null )
+		if ( task.id === "" )
 		{	//watch new task
 			console.log("watch no id, creating google task");
 			GoogleTaskCreate( task );
