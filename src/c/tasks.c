@@ -510,3 +510,8 @@ void ts_show_pebble( void ) {
 	
 	LOG("ts show returned");
 }
+void ts_reload_items(void)
+{
+	ts_free_items();
+	ts_show_pebble();
+}

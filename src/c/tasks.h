@@ -32,4 +32,6 @@ void ts_set_item(int, TS_Item);
 void ts_append_item(TS_Item);
 void ts_update_item_state_by_id(int, bool);
 
+void ts_reload_items(void);
+
 #endif
