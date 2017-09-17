@@ -9,6 +9,7 @@
 #include "offline.h"
 #include "isoTime.h"
 #include "tertiary_text.h"
+#include "taskMenu.h"
 
 #ifdef BIGGER_FONT
 #define CUSTOM_FONT "RESOURCE_ID_GOTHIC_24_BOLD"
@@ -277,8 +278,10 @@ static void ts_select_long_click_cb(MenuLayer *ml, MenuIndex *idx, void *context
 		sb_show("Not enough memory");
 		return;
 	}
-	TS_Item task = ts_items[idx->row];
-	ti_show(listId, task);
+	
+	menuShow( idx->row );
+	//TS_Item task = ts_items[idx->row];
+	//ti_show(listId, task);
 }
 
 static void ts_window_load(Window *wnd) {
