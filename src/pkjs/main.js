@@ -799,9 +799,9 @@ function CreateNewTasksOnGoogle() {
 	gTaskToCreateCount = 0;
 	gTaskCreatedCount = 0;
 	//Count and create new watch task on Google
-	for ( var i = g_watch_list.length-1 ; i >= 0 ; ++i )
+	for ( var i =  0 ; i < g_watch_list.length ; ++i )
 	{
-		var task = g_watch_list.tasks[index];
+		var task = g_watch_list.tasks[i];
 		if ( task.id === "" && task.status != "deleted" )
 		{
 			console.log("watch no id, creating google task:" + task.title );
@@ -809,6 +809,7 @@ function CreateNewTasksOnGoogle() {
 			++gTaskToCreateCount;
 		}
 	}
+	console.log( "Task waiting to create on Google" + gTaskToCreateCount );
 	if ( gTaskToCreateCount == 0 )
 	{
 		sendMessage({
@@ -1137,6 +1138,9 @@ Pebble.addEventListener("appmessage", function(e) {
 		console.log( "js get task end, list size=" + g_watch_list.length + ", tasks get=" + g_task_sending_index );
 		g_task_sending_index = -1;
 		sendMessage({code: 59}); //acknoledge
+		break;
+	case 63:
+		CreateNewTasksOnGoogle();	
 		break;
 	default:
 		console.log("Unknown message code "+e.payload.code);
