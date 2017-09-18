@@ -5,6 +5,8 @@
 #include "misc.h"
 #include "statusbar.h"
 #include "options.h"
+#include "isoTime.h"
+#include "offline.h"
 
 static Window *wndTaskInfo;
 static ScrollLayer *slScroll;
@@ -22,8 +24,10 @@ static void ti_select_click(ClickRecognizerRef r, void *ctx) {
 	char time[30];
 	GetIsoTime( time, 30 );
 	int newStatus = offline_get_task_status( currentTask.id ) == 0 ? 1 : 0;
+	LOG( "updating task status to %d", newStatus );
 	offline_set_task_status( currentTask.id, newStatus );
 	offline_set_task_update_time( currentTask.id, time );
+	ts_update_item_state_by_id( currentTask.id, newStatus );
 }
 static void ti_click_config_provider(void* ctx) {
 	window_single_click_subscribe(BUTTON_ID_SELECT, ti_select_click);

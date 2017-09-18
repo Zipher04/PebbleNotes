@@ -287,16 +287,15 @@ static void ts_select_long_click_cb(MenuLayer *ml, MenuIndex *idx, void *context
 
 void ts_show_detail( int taskIndex )
 {
-	TS_Item task = 0;
 	for(int i=0; i<ts_count; i++) 
 	{
 		if(ts_items[i].id == taskIndex ) 
 		{
-			task = ts_items[i];
+			TS_Item task = ts_items[i];
+			ti_show(-1, task);
+			break;
 		}
 	}
-	
-	ti_show(-1, task);
 }
 
 static void ts_window_load(Window *wnd) {
