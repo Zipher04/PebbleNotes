@@ -19,6 +19,9 @@ var g_option_ids = {
 	task_actions_position: 2,
 };
 
+var gTaskToCreateCount = 0;	//number of tasks to create on Google
+var gTaskCreatedCount = 0;		//number of tasks successfully created on Google
+
 /**
  * XHR wrapper
  * Usage:
@@ -682,7 +685,7 @@ function GetTasksFromGoogle() {
 			tasks.pop(); // don't show it
 		console.log( "Syncing watch and google..." );
 		SyncWatchAndGoogle();
-		
+		console.log( "Syncing watch and google finished" );
 		SendListToWatch( g_watch_list );
 	});
 }
@@ -749,6 +752,13 @@ function GoogleTaskCreate( task ) {
 		// success
 		task.id = d.id;
 		console.log( "Google task created: " + JSON.stringify(d) );
+		++gTaskCreatedCount;
+		if ( gTaskCreatedCount == gTaskToCreateCount )
+		{
+			sendMessage({
+			code: 64, //CODE_CREATE_NEW_TASK_DONE
+			});
+		}
 	}, 'POST', taskJson);
 }
 
@@ -785,6 +795,28 @@ function CopyTask( target, source ) {
 	target.updated = source.updated;
 }
 
+function CreateNewTasksOnGoogle() {
+	gTaskToCreateCount = 0;
+	gTaskCreatedCount = 0;
+	//Count and create new watch task on Google
+	for ( var i = g_watch_list.length-1 ; i >= 0 ; ++i )
+	{
+		var task = g_watch_list.tasks[index];
+		if ( task.id === "" && task.status != "deleted" )
+		{
+			console.log("watch no id, creating google task:" + task.title );
+			GoogleTaskCreate( task );
+			++gTaskToCreateCount;
+		}
+	}
+	if ( gTaskToCreateCount == 0 )
+	{
+		sendMessage({
+			code: 64, //CODE_CREATE_NEW_TASK_DONE
+		});
+	}
+}
+
 function SyncWatchAndGoogle() {
 	console.log( "watch list:" + JSON.stringify( g_watch_list ) );
 	console.log( "Google list:" + JSON.stringify( g_google_list ) );
@@ -804,7 +836,7 @@ function SyncWatchAndGoogle() {
 		console.log( "Error: Sync list id mismatch" + g_watch_list.id + " with " + g_google_list.id );
 		return;
 	}
-		
+	
 	for( var index in g_watch_list.tasks )
 	{
 		var task = g_watch_list.tasks[index];
@@ -815,13 +847,12 @@ function SyncWatchAndGoogle() {
 		console.log( "updated:" + task.updated );
 		console.log( "status:" + task.status );*/
 		if ( task.id === "" )
-		{	//watch new task
-			if ( task.status == "deleted" )
-			{	//task deleted before sync
-				continue;
+		{	//watch new task, waiting for id
+			if ( task.status != "deleted" )
+			{
+				displayError( "A new task without id!" );
+				console.log( "Error: A new task without id!" );
 			}
-			console.log("watch no id, creating google task");
-			GoogleTaskCreate( task );
 			continue;
 		}
 		var gTaskIndex = FindTask( g_google_list, task.id );
@@ -862,6 +893,7 @@ function SyncWatchAndGoogle() {
 		}
 	}	//end for( var task in g_watch_list.tasks )
 	
+	// remove deleted tasks
 	for ( var i = g_watch_list.length-1 ; i >= 0 ; --i )
 	{
 		if ( g_watch_list.tasks[i].status == "deleted" )

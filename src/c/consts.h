@@ -61,6 +61,9 @@ enum {
 	CODE_SEND_TASK_ACK = 58,
 	CODE_SEND_TASK_END_ACK = 59,
 	
+	CODE_REQUEST_LIST = 62,
+	CODE_CREATE_NEW_TASK = 63,
+	CODE_CREATE_NEW_TASK_DONE = 64,
 };
 // Message scopes
 enum {
