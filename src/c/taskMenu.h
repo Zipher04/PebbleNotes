@@ -2,7 +2,7 @@
 
 
 
-void menuShow( int taskId );
+void menuShow( int taskIndex );
 
 void MenuInit( void );
 void MenuDeinit( void );

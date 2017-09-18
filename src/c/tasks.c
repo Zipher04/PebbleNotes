@@ -285,6 +285,20 @@ static void ts_select_long_click_cb(MenuLayer *ml, MenuIndex *idx, void *context
 	//ti_show(listId, task);
 }
 
+void ts_show_detail( int taskIndex )
+{
+	TS_Item task = 0;
+	for(int i=0; i<ts_count; i++) 
+	{
+		if(ts_items[i].id == taskIndex ) 
+		{
+			task = ts_items[i];
+		}
+	}
+	
+	ti_show(-1, task);
+}
+
 static void ts_window_load(Window *wnd) {
 	Layer *wnd_layer = window_get_root_layer(wnd);
 	GRect bounds = layer_get_bounds(wnd_layer);
@@ -510,7 +524,7 @@ void ts_show_pebble( void ) {
 		int done = offline_get_task_status( i );
 		
 		if ( -1 == done )
-		{	//do not show deletec tasks
+		{	//do not show deleted tasks
 			++shift;
 			continue;
 		}

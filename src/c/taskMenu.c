@@ -16,22 +16,27 @@ static SimpleMenuSection s_menu_section[SECTION_SIZE];
 static SimpleMenuItem s_menu_item[ITEM_SIZE];
 
 /* Private functions */
-static int g_currentTaskId;
+static int g_currentTaskIndex;
+
+void TaskShowNotes( int index, void *context )
+{
+	ts_show_detail( index );
+}
 
 void TaskDelete( int index, void *context )
 {
 	char time[30];
 	GetIsoTime( time, 30 );
-	offline_set_task_status( g_currentTaskId, -1 );
-	offline_set_task_update_time( g_currentTaskId, time );
+	offline_set_task_status( g_currentTaskIndex, -1 );
+	offline_set_task_update_time( g_currentTaskIndex, time );
 	ts_reload_items();
 	window_stack_pop( true );
 }
 
 /* Public functions */
-void menuShow( int taskId )
+void menuShow( int taskIndex )
 {
-	g_currentTaskId = taskId;
+	g_currentTaskIndex = taskIndex;
 	window_stack_push( s_window, true );
 }
 
@@ -44,7 +49,7 @@ void main_window_load(Window *window) {
 	s_menu_item[itemId++] = (SimpleMenuItem) {
 		.title = "View detail",
 		.subtitle = NULL,
-		.callback = NULL,
+		.callback = TaskShowNotes,
 	};
 	s_menu_item[itemId++] = (SimpleMenuItem) {
 		.title = "Delete task",
