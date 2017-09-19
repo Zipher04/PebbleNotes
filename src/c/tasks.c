@@ -66,13 +66,11 @@ typedef struct {
 static STertiaryInputExtra tertiaryInputCallBackData;
 
 void TertiaryCreatTaskCallBack( const char* result, size_t result_length, int index ) {
-		
-	char time[30];
-	GetIsoTime( time, 30 );
+
 	index = offline_get_list_length();
 	
 	offline_set_task_title( index, (char*)result );
-	offline_set_task_update_time( index, time );
+	offline_update_task_update_time( index );
 	offline_set_list_length( index+1 );
 	ts_append_item((TS_Item){
 			.id = index,
@@ -255,12 +253,9 @@ static void ts_select_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
 	if(ts_max_count == 0 || idx->row >= ts_count)
 		return; // don't do anything if we have no data for this row
 	TS_Item task = ts_items[idx->row];
-	
-	char time[SIZE_TIME];
-	GetIsoTime( time, SIZE_TIME );
-	
+		
 	offline_set_task_status( task.id, !task.done );
-	offline_set_task_update_time( task.id, time );
+	offline_update_task_update_time( task.id );
 	ts_update_item_state_by_id( task.id, !task.done );
 }
 static void ts_select_long_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {

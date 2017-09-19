@@ -25,10 +25,8 @@ void TaskShowNotes( int index, void *context )
 
 void TaskDelete( int index, void *context )
 {
-	char time[30];
-	GetIsoTime( time, 30 );
 	offline_set_task_status( g_currentTaskIndex, -1 );
-	offline_set_task_update_time( g_currentTaskIndex, time );
+	offline_update_task_update_time( g_currentTaskIndex );
 	ts_reload_items();
 	window_stack_pop( true );
 }

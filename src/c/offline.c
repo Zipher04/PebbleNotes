@@ -209,31 +209,25 @@ void offline_remove_task( int index )
 {
 	int length = offline_get_list_length();
 	assert( index < length, "Invalid index for task removing!" );
-	enum
-	{
-		ID_SIZE = 50,
-		TITLE_SIZE = 50,
-		NOTES_SIZE = 50,
-		TIME_SIZE = 50,
-	};
-	char id[ID_SIZE], title[TITLE_SIZE], notes[NOTES_SIZE], time[TIME_SIZE];
+	
+	char id[SIZE_TASK_ID], title[SIZE_TASK_TITLE], notes[SIZE_TASK_NOTE], time[SIZE_TIME];
 	int status;
 
 	for ( int i = index ; i < length - 1 ; ++i )
 	{
-		offline_get_task_id( i + 1, id, ID_SIZE );
+		offline_get_task_id( i + 1, id, SIZE_TASK_ID );
 		offline_set_task_id( i, id );
 
-		offline_get_task_title( i + 1, title, TITLE_SIZE );
+		offline_get_task_title( i + 1, title, SIZE_TASK_TITLE );
 		offline_set_task_title( i, title );
 
-		offline_get_task_note( i + 1, notes, NOTES_SIZE );
+		offline_get_task_note( i + 1, notes, SIZE_TASK_NOTE );
 		offline_set_task_note( i, notes );
 
 		status = offline_get_task_status( i + 1 );
 		offline_set_task_status( i, status );
 
-		offline_get_task_update_time( i + 1, time, TIME_SIZE );
+		offline_get_task_update_time( i + 1, time, SIZE_TIME );
 		offline_set_task_update_time( i, time );
 	}
 	offline_set_list_length( length - 1 );
