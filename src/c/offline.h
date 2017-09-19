@@ -5,7 +5,7 @@
 /**
  * Read lists from persist data
  */
-int offline_read_lists(void );
+int offline_read_lists( void );
 
 /**
  * Read tasks from persist data
@@ -40,26 +40,26 @@ int offline_get_list_length( void );
  */
 void offline_set_list_sync_time( char* time );
 void offline_get_list_sync_time( char* time, int length );
- 
+
 /**
  * id will be "" for task never synced.
  *@param length is at least 46.
  */
 void offline_set_task_id( int i, char* id );
 void offline_get_task_id( int i, char* id, int length );
- 
+
 /**
- * 
+ *
  */
 void offline_set_task_title( int i, char* title );
 void offline_get_task_title( int i, char* title, int length );
- 
+
 /**
- * 
+ *
  */
 void offline_set_task_note( int i, char* note );
 void offline_get_task_note( int i, char* note, int length );
- 
+
 /**
  * @para status: 0:unchecked, 1:checked, -1: deleted
  */
@@ -71,6 +71,9 @@ int offline_get_task_status( int i );
  *@param length is at least 26.
  */
 void offline_set_task_update_time( int i, char* time );
+void offline_update_task_update_time( int i );
 void offline_get_task_update_time( int i, char* time, int length );
+
+void offline_remove_task( int i );
 
 #endif
