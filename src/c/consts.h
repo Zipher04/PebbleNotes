@@ -93,7 +93,7 @@ enum EPersistStorageIndex
 	PERSIST_TASK_END,			//posistion holder 
 };
 
-enum
+enum ESize
 {
 	SIZE_LIST_ID = 50,
 	SIZE_TASK_ID = 60,

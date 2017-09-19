@@ -6,6 +6,7 @@
 #include "offline.h"
 #include "isoTime.h"
 #include "taskMenu.h"
+#include "consts.h"
 
 #define SECTION_SIZE 1
 #define ITEM_SIZE 4
@@ -25,8 +26,18 @@ void TaskShowNotes( int index, void *context )
 
 void TaskDelete( int index, void *context )
 {
-	offline_set_task_status( g_currentTaskIndex, -1 );
-	offline_update_task_update_time( g_currentTaskIndex );
+	char title[SIZE_TASK_ID] = "";
+	offline_get_task_status( g_currentTaskIndex, title, SIZE_TASK_ID );
+	if ( 0 == strlen( title ) )
+	{
+		offline_remove_task( g_currentTaskIndex );
+	}
+	else
+	{
+		offline_set_task_status( g_currentTaskIndex, -1 );
+		offline_update_task_update_time( g_currentTaskIndex );
+	}
+	
 	ts_reload_items();
 	window_stack_pop( true );
 }
