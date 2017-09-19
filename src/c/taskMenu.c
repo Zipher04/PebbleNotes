@@ -26,9 +26,9 @@ void TaskShowNotes( int index, void *context )
 
 void TaskDelete( int index, void *context )
 {
-	char title[SIZE_TASK_ID] = "";
-	offline_get_task_status( g_currentTaskIndex, title, SIZE_TASK_ID );
-	if ( 0 == strlen( title ) )
+	char id[SIZE_TASK_ID] = "";
+	offline_get_task_id( g_currentTaskIndex, id, SIZE_TASK_ID );
+	if ( 0 == strlen( id ) )
 	{
 		offline_remove_task( g_currentTaskIndex );
 	}

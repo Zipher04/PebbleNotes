@@ -504,7 +504,7 @@ void ts_show_pebble( void ) {
 	{
 		int done = offline_get_task_status( i );
 		if ( -1 == done )
-		{	//do not show deletec tasks
+		{	//do not show deleted tasks
 			continue;
 		}
 		++count;
@@ -512,7 +512,7 @@ void ts_show_pebble( void ) {
 	
 	ts_set_count( count );
 	int shift = 0;
-	for ( int i = 0 ; i < count ; ++i )
+	for ( int i = 0 ; i < taskLength ; ++i )
 	{
 		char title[SIZE_TASK_TITLE], note[SIZE_TASK_NOTE];
 		int done = offline_get_task_status( i );
