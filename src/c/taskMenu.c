@@ -7,6 +7,7 @@
 #include "isoTime.h"
 #include "taskMenu.h"
 #include "consts.h"
+#include "tertiary_text.h"
 
 #define SECTION_SIZE 1
 #define ITEM_SIZE 4
@@ -21,7 +22,7 @@ static int g_currentTaskIndex;
 
 void TaskShowNotes( int index, void *context )
 {
-	ts_show_detail( index );
+	ts_show_detail( g_currentTaskIndex );
 }
 
 void TaskDelete( int index, void *context )
@@ -46,7 +47,7 @@ void TertiaryTaskEditTitleCallBack( const char* result, size_t result_length, vo
 {
 	if ( 0 == result_length )
 		return;
-	offline_set_task_title( g_currentTaskIndex, result );
+	offline_set_task_title( g_currentTaskIndex, (char*)result );
 	offline_update_task_update_time( g_currentTaskIndex );
 	ts_reload_items();
 	window_stack_pop( true );
@@ -54,12 +55,13 @@ void TertiaryTaskEditTitleCallBack( const char* result, size_t result_length, vo
 
 void TaskEditTitle( int index, void *context )
 {
+	LOG("TaskEditTitle Calling tertiary");
 	tertiary_text_prompt( "Edit task title", TertiaryTaskEditTitleCallBack, 0 );
 }
 
 void TertiaryTaskEditNotesCallBack( const char* result, size_t result_length, void* extra )
 {
-	offline_set_task_note( g_currentTaskIndex, result );
+	offline_set_task_note( g_currentTaskIndex, (char*)result );
 	offline_update_task_update_time( g_currentTaskIndex );
 	ts_reload_items();
 	window_stack_pop( true );
@@ -67,6 +69,7 @@ void TertiaryTaskEditNotesCallBack( const char* result, size_t result_length, vo
 
 void TaskEditNotes( int index, void *context )
 {
+	LOG("TaskEditNotes Calling tertiary");
 	tertiary_text_prompt( "Edit task notes", TertiaryTaskEditNotesCallBack, 0 );
 }
 
