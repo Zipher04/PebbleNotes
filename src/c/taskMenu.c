@@ -42,6 +42,34 @@ void TaskDelete( int index, void *context )
 	window_stack_pop( true );
 }
 
+void TertiaryTaskEditTitleCallBack( const char* result, size_t result_length, void* extra )
+{
+	if ( 0 == result_length )
+		return;
+	offline_set_task_title( g_currentTaskIndex, result );
+	offline_update_task_update_time( g_currentTaskIndex );
+	ts_reload_items();
+	window_stack_pop( true );
+}
+
+void TaskEditTitle( int index, void *context )
+{
+	tertiary_text_prompt( "Edit task title", TertiaryTaskEditTitleCallBack, 0 );
+}
+
+void TertiaryTaskEditNotesCallBack( const char* result, size_t result_length, void* extra )
+{
+	offline_set_task_note( g_currentTaskIndex, result );
+	offline_update_task_update_time( g_currentTaskIndex );
+	ts_reload_items();
+	window_stack_pop( true );
+}
+
+void TaskEditNotes( int index, void *context )
+{
+	tertiary_text_prompt( "Edit task notes", TertiaryTaskEditNotesCallBack, 0 );
+}
+
 /* Public functions */
 void menuShow( int taskIndex )
 {
@@ -68,12 +96,12 @@ void main_window_load(Window *window) {
 	s_menu_item[itemId++] = (SimpleMenuItem) {
 		.title = "Edit title",
 		.subtitle = NULL,
-		.callback = NULL,
+		.callback = TaskEditTitle,
 	};
 	s_menu_item[itemId++] = (SimpleMenuItem) {
 		.title = "Edit notes",
 		.subtitle = NULL,
-		.callback = NULL,
+		.callback = TaskEditNotes,
 	};	
 	assert( itemId == ITEM_SIZE, "Menu item count not match" );
 	
