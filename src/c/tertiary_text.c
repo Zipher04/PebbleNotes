@@ -15,14 +15,14 @@ static TextLayer* text_title;
 static TextLayer* text_layer;
 static TextLayer* text_input;
 
-static TextLayer* buttons1[3];
-static TextLayer* buttons2[3];
-static TextLayer* buttons3[3];
-static TextLayer** bbuttons[3];
+static TextLayer* buttons1[3];	//layers of section 1
+static TextLayer* buttons2[3];	//layers of section 2
+static TextLayer* buttons3[3];	//layers of section 2
+static TextLayer** bbuttons[3];	//array of 9 layer of sections
 
 //static InverterLayer* inverter_side;
 
-static bool menu = false;
+static bool menu = false;	//case/symbol selection is on screen
 
 // Here are the three cases, or sets
 static char caps[] =    	"ABCDEFGHIJKLM NOPQRSTUVWXYZ";
@@ -33,7 +33,7 @@ static char numsym[] = 		"1234567890!?-'\"$()&*+#:@/,.";
 static char* btext1[] = {"abc", "def", "ghi"};
 static char* btext2[] = {"jkl", "m n", "opq"};
 static char* btext3[] = {"rst", "uvw", "xyz"};
-static char** btexts[] = {btext1, btext2, btext3};
+static char** btexts[] = {btext1, btext2, btext3};	//current triple array of characters
 
 // These are the actual sets that are displayed on each button, also need to be unique
 static char set1[4] = "  a";
@@ -43,7 +43,7 @@ static char* setlist[] = {set1, set2, set3};
 
 static char* cases[] = {"CAP", "low", "#@1"};
 
-static int cur_set = 1;
+static int cur_set = 1;		//index of current set of letters
 
 static void drawSides();
 static void drawMenu();
@@ -53,14 +53,14 @@ static void drawNotepadText();
 static char* rotate_text[] = {caps, letters, numsym};
 static void next();
 
-static char* master = letters;
+static char* master = letters;	//pointer current set of letters
 
 static char text_buffer[MAX_CHARS];
 static int pos = 0;
 static int top, end, size;
 
-static const char* title;
-static void* extra;
+static const char* title;	//text on status bar
+static void* extra;			//argument for callback
 static TertiaryTextCallback callback;
 
 static const bool animated = true;
@@ -99,7 +99,7 @@ static void clickButton(int b)
 {
 	if (menu)
 	{
-		change_set(b, false);
+		change_set(b, true);
 		return;
 	}
 
@@ -213,6 +213,7 @@ static void click_config_provider(void* context)
     window_long_click_subscribe(BUTTON_ID_DOWN, 1000, down_long_click_handler, NULL);
 }
 
+// show menu for case/symbol selection
 static void drawMenu()
 {
     for (int i=0; i<3; i++)
