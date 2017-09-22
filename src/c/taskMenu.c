@@ -11,6 +11,7 @@
 
 #define SECTION_SIZE 1
 #define ITEM_SIZE 4
+#define CELL_HEIGHT 40
 
 static Window *s_window;
 static SimpleMenuLayer *s_menu_layer;
@@ -73,6 +74,11 @@ void TaskEditNotes( int index, void *context )
 	tertiary_text_prompt( "Edit task notes", TertiaryTaskEditNotesCallBack, 0 );
 }
 
+static int16_t get_cell_height_cb( struct MenuLayer *menu_layer, MenuIndex *cell_index, void *callback_context )
+{
+	return CELL_HEIGHT;
+}
+
 /* Public functions */
 void menuShow( int taskIndex )
 {
@@ -118,7 +124,7 @@ void main_window_load(Window *window) {
 	assert( sectionId == SECTION_SIZE, "Menu section count not match" );
 	
 	s_menu_layer = simple_menu_layer_create( bounds, window, s_menu_section, 1, NULL );
-
+	
 	// Add the text layer to the window
 	layer_add_child( window_layer, simple_menu_layer_get_layer(s_menu_layer));
 

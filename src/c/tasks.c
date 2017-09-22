@@ -18,9 +18,10 @@
 #define ITEM_RECT GRect(0, -6, 144, 48)
 #define ICON_START GPoint(0, 3)
 #else
+#define CELL_HEIGHT 24
 #define CUSTOM_FONT "RESOURCE_ID_GOTHIC_18_BOLD"
 #define ICON_SPACES 5
-#define ITEM_RECT GRect(0, 0, 144, 25)
+#define ITEM_RECT GRect(0, 0, 144, CELL_HEIGHT)
 #ifdef PBL_ROUND
  #define ICON_START GPoint(4, 3)
 #else
@@ -125,7 +126,7 @@ static int16_t ts_get_header_height_cb(MenuLayer *ml, uint16_t section, void *co
 }
 static int16_t ts_get_cell_height_cb( struct MenuLayer *menu_layer, MenuIndex *cell_index, void *callback_context )
 {
-	return 25;
+	return CELL_HEIGHT;
 }
 static void ts_draw_header_cb(GContext *ctx, const Layer *cell_layer, uint16_t section, void *context) {
 	char *header;
