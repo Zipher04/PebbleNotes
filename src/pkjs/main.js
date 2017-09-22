@@ -6,7 +6,7 @@ var g_msg_timeout = 8000;
 var g_server_url = "https://2-dot-pebble-notes.appspot.com";
 
 var g_options = {
-	"sort_status": false,
+	"sort_status": true,
 	"sort_date": false, // false, "asc", "desc"
 	"sort_due": false, // false, "asc", "desc"
 	"sort_alpha": false,
@@ -685,7 +685,16 @@ function GetTasksFromGoogle() {
 			tasks.pop(); // don't show it
 		console.log( "Syncing watch and google..." );
 		SyncWatchAndGoogle();
-		console.log( "Syncing watch and google finished" );
+		console.log("Syncing watch and google finished");
+
+		if ( g_options.sort_status )
+		{
+		    var comparator = function(a, b) {
+		        return strcmp( b.status, a.status );
+		    }
+		    g_watch_list.tasks.sort(comparator);
+		}
+
 		SendListToWatch( g_watch_list );
 	});
 }
