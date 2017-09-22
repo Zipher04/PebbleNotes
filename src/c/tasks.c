@@ -20,7 +20,7 @@
 #else
 #define CUSTOM_FONT "RESOURCE_ID_GOTHIC_18_BOLD"
 #define ICON_SPACES 5
-#define ITEM_RECT GRect(0, 0, 144, 44)
+#define ITEM_RECT GRect(0, 0, 144, 25)
 #ifdef PBL_ROUND
  #define ICON_START GPoint(4, 3)
 #else
@@ -122,6 +122,10 @@ static uint16_t ts_get_num_rows_cb(MenuLayer *ml, uint16_t section_index, void *
 }
 static int16_t ts_get_header_height_cb(MenuLayer *ml, uint16_t section, void *context) {
 	return MENU_CELL_BASIC_HEADER_HEIGHT;
+}
+static int16_t ts_get_cell_height_cb( struct MenuLayer *menu_layer, MenuIndex *cell_index, void *callback_context )
+{
+	return 25;
 }
 static void ts_draw_header_cb(GContext *ctx, const Layer *cell_layer, uint16_t section, void *context) {
 	char *header;
@@ -283,6 +287,7 @@ static void ts_window_load(Window *wnd) {
 		.get_num_rows = ts_get_num_rows_cb,
 		.get_header_height = ts_get_header_height_cb,
 		.draw_header = ts_draw_header_cb,
+		.get_cell_height = ts_get_cell_height_cb,
 		.draw_row = ts_draw_row_cb,
 		.select_click = ts_select_click_cb,
 		.select_long_click = ts_select_long_click_cb,
