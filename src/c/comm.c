@@ -2,7 +2,6 @@
 #include "comm.h"
 #include "misc.h"
 #include "consts.h"
-#include "tasklists.h"
 #include "tasks.h"
 #include "taskinfo.h"
 #include "statusbar.h"
@@ -37,9 +36,9 @@ bool comm_is_available_silent() {
 	return bluetooth_connection_service_peek() && comm_js_ready;
 }
 
-void comm_query_tasklists_cb(void *arg) {
-	comm_query_tasklists();
-}
+//void comm_query_tasklists_cb(void *arg) {
+//	comm_query_tasklists();
+//}
 //void comm_query_tasklists() {
 //	if ( !comm_is_bluetooth_available() )
 //	{

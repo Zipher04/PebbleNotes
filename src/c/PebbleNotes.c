@@ -1,6 +1,5 @@
 #include <pebble.h>
 #include "comm.h"
-#include "tasklists.h"
 #include "tasks.h"
 #include "taskinfo.h"
 #include "statusbar.h"
@@ -11,7 +10,6 @@
 static void init(void) {
 	options_init();
 	comm_init();
-	//tl_init(); //tl is not needed, load only list named "pebble"
 	ts_init();
 	ti_init();
 	sb_init();
@@ -27,7 +25,6 @@ static void deinit(void) {
 	sb_deinit();
 	ti_deinit();
 	ts_deinit();
-	tl_deinit();
 	comm_deinit();
 	options_deinit();
 }
