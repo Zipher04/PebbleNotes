@@ -21,10 +21,10 @@ static TS_Item currentTask;
 
 static void ti_select_click(ClickRecognizerRef r, void *ctx) {
 	//comm_update_task_status(listId, currentTask.id, !currentTask.done);
-	int newStatus = offline_get_task_status( currentTask.id ) == 0 ? 1 : 0;
+	int newStatus = PersistGetTaskStatus( currentTask.id ) == 0 ? 1 : 0;
 	LOG( "updating task status to %d", newStatus );
-	offline_set_task_status( currentTask.id, newStatus );
-	offline_update_task_update_time( currentTask.id );
+	PersistSetTaskStatus( currentTask.id, newStatus );
+	PersistUpdateTaskUpdateTime( currentTask.id );
 	ts_update_item_state_by_id( currentTask.id, newStatus );
 }
 static void ti_click_config_provider(void* ctx) {

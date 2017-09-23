@@ -40,126 +40,126 @@ bool comm_is_available_silent() {
 void comm_query_tasklists_cb(void *arg) {
 	comm_query_tasklists();
 }
-void comm_query_tasklists() {
-	if ( !comm_is_bluetooth_available() )
-	{
-		offline_read_lists();
-		sb_show( "offline lists" );
-		return;
-	}
-	if(!comm_js_ready) {
-		comm_js_ready_cb = comm_query_tasklists_cb;
-		sb_show("Waiting for JS...");
-		comm_is_bluetooth_available(); // check bluetooth connection and show message if needed
-		return;
-	}
-	if(!comm_is_available())
-	{
-		return;
-	}
-	sb_show("Connecting...");
-	LOG("Querying tasklists");
-	DictionaryIterator *iter;
-	Tuplet code = TupletInteger(KEY_CODE, CODE_GET);
-	Tuplet scope = TupletInteger(KEY_SCOPE, SCOPE_LISTS);
-
-	app_message_outbox_begin(&iter);
-	dict_write_tuplet(iter, &code);
-	dict_write_tuplet(iter, &scope);
-	app_message_outbox_send();
-}
+//void comm_query_tasklists() {
+//	if ( !comm_is_bluetooth_available() )
+//	{
+//		offline_read_lists();
+//		sb_show( "offline lists" );
+//		return;
+//	}
+//	if(!comm_js_ready) {
+//		comm_js_ready_cb = comm_query_tasklists_cb;
+//		sb_show("Waiting for JS...");
+//		comm_is_bluetooth_available(); // check bluetooth connection and show message if needed
+//		return;
+//	}
+//	if(!comm_is_available())
+//	{
+//		return;
+//	}
+//	sb_show("Connecting...");
+//	LOG("Querying tasklists");
+//	DictionaryIterator *iter;
+//	Tuplet code = TupletInteger(KEY_CODE, CODE_GET);
+//	Tuplet scope = TupletInteger(KEY_SCOPE, SCOPE_LISTS);
+//
+//	app_message_outbox_begin(&iter);
+//	dict_write_tuplet(iter, &code);
+//	dict_write_tuplet(iter, &scope);
+//	app_message_outbox_send();
+//}
 void comm_query_tasks_cb(void *arg) {
 	comm_query_tasks((int)arg);
 }
-void comm_query_tasks(int listId) {
-	if ( !comm_is_bluetooth_available() )
-	{
-		offline_read_tasks( listId );
-		sb_show( "offline tasks" );
-		return;
-	}
-	if(!comm_js_ready) {
-		comm_js_ready_cb = comm_query_tasks_cb;
-		comm_js_ready_cb_data = (void*)listId;
-		comm_is_available(); // show message if needed
-		return;
-	}
-	g_comm_last_query_listId = listId;
-	if(!comm_is_available())
-	{
-		return;
-	}
-	sb_show("Connecting...");
-	LOG("Querying tasks for listId=%d", listId);
-	DictionaryIterator *iter;
-	Tuplet code = TupletInteger(KEY_CODE, CODE_GET);
-	Tuplet scope = TupletInteger(KEY_SCOPE, SCOPE_TASKS);
-	Tuplet tListId = TupletInteger(KEY_LISTID, listId);
-
-	app_message_outbox_begin(&iter);
-	dict_write_tuplet(iter, &code);
-	dict_write_tuplet(iter, &scope);
-	dict_write_tuplet(iter, &tListId);
-	app_message_outbox_send();
-}
+//void comm_query_tasks(int listId) {
+//	if ( !comm_is_bluetooth_available() )
+//	{
+//		offline_read_tasks( listId );
+//		sb_show( "offline tasks" );
+//		return;
+//	}
+//	if(!comm_js_ready) {
+//		comm_js_ready_cb = comm_query_tasks_cb;
+//		comm_js_ready_cb_data = (void*)listId;
+//		comm_is_available(); // show message if needed
+//		return;
+//	}
+//	g_comm_last_query_listId = listId;
+//	if(!comm_is_available())
+//	{
+//		return;
+//	}
+//	sb_show("Connecting...");
+//	LOG("Querying tasks for listId=%d", listId);
+//	DictionaryIterator *iter;
+//	Tuplet code = TupletInteger(KEY_CODE, CODE_GET);
+//	Tuplet scope = TupletInteger(KEY_SCOPE, SCOPE_TASKS);
+//	Tuplet tListId = TupletInteger(KEY_LISTID, listId);
+//
+//	app_message_outbox_begin(&iter);
+//	dict_write_tuplet(iter, &code);
+//	dict_write_tuplet(iter, &scope);
+//	dict_write_tuplet(iter, &tListId);
+//	app_message_outbox_send();
+//}
 void comm_query_task_details(int listId, int taskId) {
 	LOG("Querying task details for %d, %d (not implemented)", listId, taskId);
 }
 
-void comm_update_task_status(int listId, int taskId, bool newStatus) {
-	if(!comm_is_available())
-		return;
-	LOG("Updating status for task %d->%d to %d (NI)", listId, taskId, newStatus);
-	sb_show("Updating...");
-	DictionaryIterator *iter;
-	Tuplet code = TupletInteger(KEY_CODE, CODE_UPDATE);
-	Tuplet scope = TupletInteger(KEY_SCOPE, SCOPE_TASK);
-	Tuplet tListId = TupletInteger(KEY_LISTID, listId);
-	Tuplet tTaskId = TupletInteger(KEY_TASKID, taskId);
-	Tuplet tIsDone = TupletInteger(KEY_ISDONE, newStatus);
+//void comm_update_task_status(int listId, int taskId, bool newStatus) {
+//	if(!comm_is_available())
+//		return;
+//	LOG("Updating status for task %d->%d to %d (NI)", listId, taskId, newStatus);
+//	sb_show("Updating...");
+//	DictionaryIterator *iter;
+//	Tuplet code = TupletInteger(KEY_CODE, CODE_UPDATE);
+//	Tuplet scope = TupletInteger(KEY_SCOPE, SCOPE_TASK);
+//	Tuplet tListId = TupletInteger(KEY_LISTID, listId);
+//	Tuplet tTaskId = TupletInteger(KEY_TASKID, taskId);
+//	Tuplet tIsDone = TupletInteger(KEY_ISDONE, newStatus);
+//
+//	app_message_outbox_begin(&iter);
+//	dict_write_tuplet(iter, &code);
+//	dict_write_tuplet(iter, &scope);
+//	dict_write_tuplet(iter, &tListId);
+//	dict_write_tuplet(iter, &tTaskId);
+//	dict_write_tuplet(iter, &tIsDone);
+//	app_message_outbox_send();
+//}
 
-	app_message_outbox_begin(&iter);
-	dict_write_tuplet(iter, &code);
-	dict_write_tuplet(iter, &scope);
-	dict_write_tuplet(iter, &tListId);
-	dict_write_tuplet(iter, &tTaskId);
-	dict_write_tuplet(iter, &tIsDone);
-	app_message_outbox_send();
-}
-
-void comm_create_task(int listId, char* title, char* notes) {
-	if(!comm_is_available()) {
-		// TODO: alert?
-		return;
-	}
-	LOG("Creating new task with title %s in list %d", title, listId);
-	sb_show("Creating...");
-	DictionaryIterator *iter;
-	Tuplet code = TupletInteger(KEY_CODE, CODE_POST);
-	Tuplet scope = TupletInteger(KEY_SCOPE, SCOPE_TASK);
-	Tuplet tListId = TupletInteger(KEY_LISTID, listId);
-	Tuplet tTitle = TupletCString(KEY_TITLE, title);
-
-	app_message_outbox_begin(&iter);
-	dict_write_tuplet(iter, &code);
-	dict_write_tuplet(iter, &scope);
-	dict_write_tuplet(iter, &tListId);
-	dict_write_tuplet(iter, &tTitle);
-	if(notes) {
-		Tuplet tNotes = TupletCString(KEY_NOTES, notes);
-		dict_write_tuplet(iter, &tNotes);
-	}
-	app_message_outbox_send();
-}
+//void comm_create_task(int listId, char* title, char* notes) {
+//	if(!comm_is_available()) {
+//		// TODO: alert?
+//		return;
+//	}
+//	LOG("Creating new task with title %s in list %d", title, listId);
+//	sb_show("Creating...");
+//	DictionaryIterator *iter;
+//	Tuplet code = TupletInteger(KEY_CODE, CODE_POST);
+//	Tuplet scope = TupletInteger(KEY_SCOPE, SCOPE_TASK);
+//	Tuplet tListId = TupletInteger(KEY_LISTID, listId);
+//	Tuplet tTitle = TupletCString(KEY_TITLE, title);
+//
+//	app_message_outbox_begin(&iter);
+//	dict_write_tuplet(iter, &code);
+//	dict_write_tuplet(iter, &scope);
+//	dict_write_tuplet(iter, &tListId);
+//	dict_write_tuplet(iter, &tTitle);
+//	if(notes) {
+//		Tuplet tNotes = TupletCString(KEY_NOTES, notes);
+//		dict_write_tuplet(iter, &tNotes);
+//	}
+//	app_message_outbox_send();
+//}
 
 void SentListToPhone( void ) {
 	LOG ( "Sending list" );
 	
-	int listLength = offline_get_list_length();
+	int listLength = PersistGetListLength();
 		
 	char id[SIZE_LIST_ID], syncTime[SIZE_TIME];
-	offline_get_list_id( id, SIZE_LIST_ID );
-	offline_get_list_sync_time( syncTime, SIZE_TIME );
+	PersisitGetListId( id, SIZE_LIST_ID );
+	PersistGetListSyncTime( syncTime, SIZE_TIME );
 	
 	DictionaryIterator *iter;
 	Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_LIST );
@@ -181,10 +181,10 @@ void SentTaskToPhone( int taskIndex )
 {
 	char id[SIZE_TASK_ID], title[SIZE_TASK_TITLE], note[SIZE_TASK_NOTE], updateTime[SIZE_TIME];
 	
-	offline_get_task_id( taskIndex, id, SIZE_TASK_ID );
-	offline_get_task_title( taskIndex, title, SIZE_TASK_TITLE );
-	offline_get_task_note( taskIndex, note, SIZE_TASK_NOTE );
-	offline_get_task_update_time( taskIndex, updateTime, SIZE_TIME );
+	PersistGetTaskId( taskIndex, id, SIZE_TASK_ID );
+	PersistGetTaskTitle( taskIndex, title, SIZE_TASK_TITLE );
+	PersistGetTaskNotes( taskIndex, note, SIZE_TASK_NOTE );
+	PersistGetTaskUpdateTime( taskIndex, updateTime, SIZE_TIME );
 	
 	DictionaryIterator *iter;
 	Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK );
@@ -192,7 +192,7 @@ void SentTaskToPhone( int taskIndex )
 	Tuplet tTitle = TupletCString( KEY_TITLE, &title[0] );
 	Tuplet tNote = TupletCString( KEY_NOTES, &note[0] );
 	Tuplet tUpdateTime = TupletCString( KEY_UPDATED, &updateTime[0] );
-	Tuplet tDone = TupletInteger( KEY_DONE, offline_get_task_status(taskIndex) );
+	Tuplet tDone = TupletInteger( KEY_DONE, PersistGetTaskStatus(taskIndex) );
 	
 	int result = app_message_outbox_begin(&iter);
 	assert( APP_MSG_OK == result, "Error: outbox failed" );
@@ -312,7 +312,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		SentListToPhone();
 		return;
 	} else if( code == CODE_SEND_LIST_ACK ) {
-		if ( 0 == offline_get_list_length() )
+		if ( 0 == PersistGetListLength() )
 		{
 			SendCodeToPhone( CODE_SYNC_LIST );
 			sb_show("Sync request sent");
@@ -327,7 +327,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		gTaskSendingIndex = 1;
 		return;
 	} else if ( CODE_SEND_TASK_ACK == code ) {
-		if ( gTaskSendingIndex >= offline_get_list_length() )
+		if ( gTaskSendingIndex >= PersistGetListLength() )
 		{
 			SendCodeToPhone( CODE_SEND_TASK_END );
 		}
@@ -346,113 +346,114 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 	}
 
 	
-	tScope = dict_find(iter, KEY_SCOPE);
-	//assert(tScope, "No scope!");
-	int scope;
-	if ( !tScope )
-		scope = 1;
-	else
-		scope = (int)tScope->value->int32;
-	//LOG("Message scope: %d", scope);
+	//tScope = dict_find(iter, KEY_SCOPE);
+	////assert(tScope, "No scope!");
+	//int scope;
+	//if ( !tScope )
+	//	scope = 1;
+	//else
+	//	scope = (int)tScope->value->int32;
+	////LOG("Message scope: %d", scope);
 
-	if(scope == SCOPE_LISTS) {
-		// this might be legal if we auto-switched to the only list
-		//assert(tl_is_active(), "Ignoring TaskLists-related message because that list is inactive");
-	} else if(scope == SCOPE_TASKS) {
-		assert(ts_is_active(), "Ignoring Tasks-related message because tasks is inactive");
-	} else if(scope == SCOPE_TASK) {
-		assert(ts_is_active()||ti_is_active(), "Ignoring Task-related message because neither tasks nor taskinfo is inactive");
-	} else {
-		APP_LOG(APP_LOG_LEVEL_ERROR, "Unexpected scope: %d", scope);
-		return;
-	}
+	//if(scope == SCOPE_LISTS) {
+	//	// this might be legal if we auto-switched to the only list
+	//	//assert(tl_is_active(), "Ignoring TaskLists-related message because that list is inactive");
+	//} else if(scope == SCOPE_TASKS) {
+	//	assert(ts_is_active(), "Ignoring Tasks-related message because tasks is inactive");
+	//} else if(scope == SCOPE_TASK) {
+	//	assert(ts_is_active()||ti_is_active(), "Ignoring Task-related message because neither tasks nor taskinfo is inactive");
+	//} else {
+	//	APP_LOG(APP_LOG_LEVEL_ERROR, "Unexpected scope: %d", scope);
+	//	return;
+	//}
 	
 
-	if(code == CODE_ARRAY_START) {
-		int count = (int)dict_find(iter, KEY_COUNT)->value->int32;
-		LOG("Items count: %d", count);
-		comm_array_size = count;
-		if(scope == SCOPE_LISTS) {
-			tl_set_count(count);
-			persist_write_list_count(count);
-		} else if(scope == SCOPE_TASKS) {
-			ts_set_count(count);
-			persist_write_task_count( g_comm_last_query_listId, count );
-		} else LOG("Err!");
-		snprintf(sb_printf_alloc(32), 32, "Loading...");
-		sb_printf_update();
-	} else if(code == CODE_ARRAY_ITEM) {
-		assert(comm_array_size > 0, "Unexpected array_item!");
-		int i = (int)dict_find(iter, KEY_ITEM)->value->int32;
-		assert(i < comm_array_size, "Index %d exceeds size %d", i, comm_array_size);
-		snprintf(sb_printf_get(), 32, "Loading... %d%%", 100 * (i+1) / comm_array_size);
-		sb_printf_update();
-		LOG("Statusbar Updated: %d", 100 * (i+1) / comm_array_size);
-		char *title = dict_find(iter, KEY_TITLE)->value->cstring;
-		if(scope == SCOPE_LISTS) {
-			int listId = (int)dict_find(iter, KEY_LISTID)->value->int32;
-			LOG("Item No: %d, Id=%d", i, listId);
-			tl_set_item(i, (TL_Item){
-				.id = listId,
-				.title = title,
-			});
-			//persist_write_list( listId, title );
-		} else {
-			// TODO: check listId?
-			int taskId = (int)dict_find(iter, KEY_TASKID)->value->int32;
-			Tuple *tNotes = dict_find(iter, KEY_NOTES);
-			char *notes = NULL;
-			if(tNotes)
-				notes = tNotes->value->cstring;
-			bool isDone = (bool)dict_find(iter, KEY_ISDONE)->value->int32;
-			LOG("Item No: %d, Id=%d, done=%d", i, taskId, isDone);
-			ts_set_item(i, (TS_Item){
-				.id = i,
-				.done = isDone,
-				.title = title,
-				.notes = notes,
-			});
-			persist_write_task( g_comm_last_query_listId, taskId, title, isDone );
-		}
-	} else if(code == CODE_ITEM_UPDATED) {
-		assert(scope == SCOPE_TASK, "Unexpected scope %d, expected TASK", scope);
-		int listId = (int)dict_find(iter, KEY_LISTID)->value->int32;
-		assert(listId == ts_current_listId(), "Ignoring message for non-current listId %d, current is %d", listId, ts_current_listId());
-		int taskId = (int)dict_find(iter, KEY_TASKID)->value->int32;
-		bool isDone = (bool)dict_find(iter, KEY_ISDONE)->value->int32;
-		LOG("List id: %d, Item id: %d, New status: %d", listId, taskId, isDone);
-		ts_update_item_state_by_id(taskId, isDone);
-		sb_hide(); // hide "Updating" message
-	} else if(code == CODE_ITEM_ADDED) {
-		assert(scope == SCOPE_TASKS, "Unexpected scope %d, expected TASKS", scope);
-		int listId = (int)dict_find(iter, KEY_LISTID)->value->int32;
-		assert(listId == ts_current_listId(), "Ignoring message for non-current listId %d, current is %d", listId, ts_current_listId());
-		int taskId = (int)dict_find(iter, KEY_TASKID)->value->int32;
-		char *title = dict_find(iter, KEY_TITLE)->value->cstring;
-		Tuple *tNotes = dict_find(iter, KEY_NOTES);
-		char *notes = NULL;
-		if(tNotes)
-			notes = tNotes->value->cstring;
-		bool isDone = (bool)dict_find(iter, KEY_ISDONE)->value->int32;
-		LOG("Item Id=%d, done=%d", taskId, isDone);
-		ts_append_item((TS_Item){
-			.id = taskId,
-			.done = isDone,
-			.title = title,
-			.notes = notes,
-		});
-		sb_hide(); // hide "Creating" message
-	} else if(code == CODE_ARRAY_END) {
-		comm_array_size = -1; // no current array
-		sb_hide(); // hide load percentage
-		ts_show_pebble();
-	} else if ( CODE_SEND_LIST == code ) {
+	//if(code == CODE_ARRAY_START) {
+	//	int count = (int)dict_find(iter, KEY_COUNT)->value->int32;
+	//	LOG("Items count: %d", count);
+	//	comm_array_size = count;
+	//	if(scope == SCOPE_LISTS) {
+	//		tl_set_count(count);
+	//		persist_write_list_count(count);
+	//	} else if(scope == SCOPE_TASKS) {
+	//		ts_set_count(count);
+	//		persist_write_task_count( g_comm_last_query_listId, count );
+	//	} else LOG("Err!");
+	//	snprintf(sb_printf_alloc(32), 32, "Loading...");
+	//	sb_printf_update();
+	//} else if(code == CODE_ARRAY_ITEM) {
+	//	assert(comm_array_size > 0, "Unexpected array_item!");
+	//	int i = (int)dict_find(iter, KEY_ITEM)->value->int32;
+	//	assert(i < comm_array_size, "Index %d exceeds size %d", i, comm_array_size);
+	//	snprintf(sb_printf_get(), 32, "Loading... %d%%", 100 * (i+1) / comm_array_size);
+	//	sb_printf_update();
+	//	LOG("Statusbar Updated: %d", 100 * (i+1) / comm_array_size);
+	//	char *title = dict_find(iter, KEY_TITLE)->value->cstring;
+	//	if(scope == SCOPE_LISTS) {
+	//		int listId = (int)dict_find(iter, KEY_LISTID)->value->int32;
+	//		LOG("Item No: %d, Id=%d", i, listId);
+	//		tl_set_item(i, (TL_Item){
+	//			.id = listId,
+	//			.title = title,
+	//		});
+	//		//persist_write_list( listId, title );
+	//	} else {
+	//		// TODO: check listId?
+	//		int taskId = (int)dict_find(iter, KEY_TASKID)->value->int32;
+	//		Tuple *tNotes = dict_find(iter, KEY_NOTES);
+	//		char *notes = NULL;
+	//		if(tNotes)
+	//			notes = tNotes->value->cstring;
+	//		bool isDone = (bool)dict_find(iter, KEY_ISDONE)->value->int32;
+	//		LOG("Item No: %d, Id=%d, done=%d", i, taskId, isDone);
+	//		ts_set_item(i, (TS_Item){
+	//			.id = i,
+	//			.done = isDone,
+	//			.title = title,
+	//			.notes = notes,
+	//		});
+	//		persist_write_task( g_comm_last_query_listId, taskId, title, isDone );
+	//	}
+	//} else if(code == CODE_ITEM_UPDATED) {
+	//	assert(scope == SCOPE_TASK, "Unexpected scope %d, expected TASK", scope);
+	//	int listId = (int)dict_find(iter, KEY_LISTID)->value->int32;
+	//	assert(listId == ts_current_listId(), "Ignoring message for non-current listId %d, current is %d", listId, ts_current_listId());
+	//	int taskId = (int)dict_find(iter, KEY_TASKID)->value->int32;
+	//	bool isDone = (bool)dict_find(iter, KEY_ISDONE)->value->int32;
+	//	LOG("List id: %d, Item id: %d, New status: %d", listId, taskId, isDone);
+	//	ts_update_item_state_by_id(taskId, isDone);
+	//	sb_hide(); // hide "Updating" message
+	//} else if(code == CODE_ITEM_ADDED) {
+	//	assert(scope == SCOPE_TASKS, "Unexpected scope %d, expected TASKS", scope);
+	//	int listId = (int)dict_find(iter, KEY_LISTID)->value->int32;
+	//	assert(listId == ts_current_listId(), "Ignoring message for non-current listId %d, current is %d", listId, ts_current_listId());
+	//	int taskId = (int)dict_find(iter, KEY_TASKID)->value->int32;
+	//	char *title = dict_find(iter, KEY_TITLE)->value->cstring;
+	//	Tuple *tNotes = dict_find(iter, KEY_NOTES);
+	//	char *notes = NULL;
+	//	if(tNotes)
+	//		notes = tNotes->value->cstring;
+	//	bool isDone = (bool)dict_find(iter, KEY_ISDONE)->value->int32;
+	//	LOG("Item Id=%d, done=%d", taskId, isDone);
+	//	ts_append_item((TS_Item){
+	//		.id = taskId,
+	//		.done = isDone,
+	//		.title = title,
+	//		.notes = notes,
+	//	});
+	//	sb_hide(); // hide "Creating" message
+	//} else if(code == CODE_ARRAY_END) {
+	//	comm_array_size = -1; // no current array
+	//	sb_hide(); // hide load percentage
+	//	ts_show_pebble();
+	//} else 
+	if ( CODE_SEND_LIST == code ) {
 		char *id = dict_find( iter, KEY_ID )->value->cstring;
 		int length = dict_find( iter, KEY_LENGTH )->value->int32;
 		char *updated = dict_find( iter, KEY_UPDATED )->value->cstring;
-		offline_set_list_id( id );
-		offline_set_list_length( length );
-		offline_set_list_sync_time( updated );
+		PersisitSetListId( id );
+		PersistSetListLength( length );
+		PersistSetListSyncTime( updated );
 		comm_array_size = length;
 		sb_show( "List loaded from phone" );
 	} else if ( CODE_SEND_TASK_START == code ) {
@@ -475,11 +476,11 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		// non unicode characters crash at this line for cloudpebble
 		//LOG("Item No %d: Id=%s, title=%s, note=%s, done=%d, updated=%s", i, id, title, note, done, updated );
 		
-		offline_set_task_id( item, id );
-		offline_set_task_title( item, title );
-		offline_set_task_note( item, note );
-		offline_set_task_status( item, done );
-		offline_set_task_update_time( item, updated );
+		PersistSetTaskId( item, id );
+		PersistSetTaskTitle( item, title );
+		PersistSetTaskNotes( item, note );
+		PersistSetTaskStatus( item, done );
+		PersistSetTaskUpdateTime( item, updated );
 	} else if ( CODE_SEND_TASK_END == code ) {
 		comm_array_size = -1; // no current array
 		sb_hide(); // hide load percentage

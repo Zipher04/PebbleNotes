@@ -50,8 +50,14 @@ static void ts_create_task_cb(DictationSession *session, DictationSessionStatus 
 		return;
 	}
 
+	int index = PersistGetListLength();
+	PersistSetTaskTitle( index, transcription );
+	PersistUpdateTaskUpdateTime( index );
+	PersistSetListLength( index + 1 );
+	ts_reload_items();
+
 	// for now, text recognized goes to title, and notes are left empty
-	comm_create_task(listId, transcription, NULL);
+	//comm_create_task(listId, transcription, NULL);
 
 	dictation_session_destroy(session);
 }
@@ -62,11 +68,11 @@ typedef void(* TertiaryInputCallback)( const char* result, size_t result_length,
 void TertiaryCreatTaskCallBack( const char* result, size_t result_length, void* extra ) {
 
 	LOG("Tertiary creating task");
-	int index = offline_get_list_length();
+	int index = PersistGetListLength();
 	
-	offline_set_task_title( index, (char*)result );
-	offline_update_task_update_time( index );
-	offline_set_list_length( index+1 );
+	PersistSetTaskTitle( index, (char*)result );
+	PersistUpdateTaskUpdateTime( index );
+	PersistSetListLength( index+1 );
 	ts_reload_items();
 }
 
@@ -238,8 +244,8 @@ static void ts_select_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
 		return; // don't do anything if we have no data for this row
 	TS_Item task = ts_items[idx->row];
 		
-	offline_set_task_status( task.id, !task.done );
-	offline_update_task_update_time( task.id );
+	PersistSetTaskStatus( task.id, !task.done );
+	PersistUpdateTaskUpdateTime( task.id );
 	ts_update_item_state_by_id( task.id, !task.done );
 }
 static void ts_select_long_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
@@ -336,39 +342,39 @@ void ts_deinit() {
 	gbitmap_destroy(bmpTasks[0]);
 	gbitmap_destroy(bmpTasks[1]);
 }
-void ts_show(int id, char* title) {
-	LOG("Showing tasks for listId=%d", id);
-	if(id != listId) { // not the same list; clearing and will reload
-		if(ts_items)
-			ts_free_items();
-		ts_count = -1;
-		ts_max_count = -1;
-	} else if(options_task_actions_position() == 1) {
-		// FIXME doesn't work for some reason
-		menu_layer_set_selected_index(mlTasks, MenuIndex(1, 0),
-				PBL_IF_ROUND_ELSE(MenuRowAlignCenter, MenuRowAlignTop),
-				false); // not animated
-	}
-	listId = id;
-	listTitle = title;
-
-	window_stack_push(wndTasks, true);
-	if(ts_count < 0)
-		comm_query_tasks(id);
-}
+//void ts_show(int id, char* title) {
+//	LOG("Showing tasks for listId=%d", id);
+//	if(id != listId) { // not the same list; clearing and will reload
+//		if(ts_items)
+//			ts_free_items();
+//		ts_count = -1;
+//		ts_max_count = -1;
+//	} else if(options_task_actions_position() == 1) {
+//		// FIXME doesn't work for some reason
+//		menu_layer_set_selected_index(mlTasks, MenuIndex(1, 0),
+//				PBL_IF_ROUND_ELSE(MenuRowAlignCenter, MenuRowAlignTop),
+//				false); // not animated
+//	}
+//	listId = id;
+//	listTitle = title;
+//
+//	window_stack_push(wndTasks, true);
+//	if(ts_count < 0)
+//		comm_query_tasks(id);
+//}
 bool ts_is_active() {
 	return window_stack_get_top_window() == wndTasks;
 }
-int ts_current_listId() {
-	return listId;
-}
-int ts_current_if_complete() {
-	if(listId != -1 && ts_count > 0 && !ts_items) {
-		// OOM state
-		return -1;
-	}
-	return listId;
-}
+//int ts_current_listId() {
+//	return listId;
+//}
+//int ts_current_if_complete() {
+//	if(listId != -1 && ts_count > 0 && !ts_items) {
+//		// OOM state
+//		return -1;
+//	}
+//	return listId;
+//}
 void ts_set_count(int count) {
 	LOG("Setting count: %d", count);
 	if(ts_items)
@@ -428,34 +434,34 @@ void ts_set_item(int i, TS_Item data) {
 				false); // not animated
 	}
 }
-void ts_append_item(TS_Item data) {
-	LOG("Additional item with id %d", data.id);
-	assert(ts_max_count >= 0, "Trying to append item while not initialized!");
-	assert(ts_max_count == ts_count, "Trying to add task while not fully loaded!");
-	assert_oom(heap_bytes_free() > OOM_SAFEGUARD, "Almost OOM - ignoring item!");
-	ts_count++;
-	ts_max_count++;
-	// increase array memory
-	ts_items = realloc(ts_items, sizeof(TS_Item)*ts_count);
-	int i = ts_max_count-1; // last task
-	ts_items[i].id = data.id;
-	ts_items[i].done = data.done;
-	ts_items[i].title = malloc(strlen(data.title)+1);
-	if(ts_items[i].title)
-		strcpy(ts_items[i].title, data.title);
-	else
-		APP_LOG(APP_LOG_LEVEL_ERROR, "OOM while allocating title");
-	if(data.notes) {
-		ts_items[i].notes = malloc(strlen(data.notes)+1);
-		if(ts_items[i].notes)
-			strcpy(ts_items[i].notes, data.notes);
-		else
-			APP_LOG(APP_LOG_LEVEL_ERROR, "OOM while allocating notes");
-	} else
-		ts_items[i].notes = NULL;
-	menu_layer_reload_data(mlTasks);
-	LOG("Task appended, new count is %d", ts_count);
-}
+//void ts_append_item(TS_Item data) {
+//	LOG("Additional item with id %d", data.id);
+//	assert(ts_max_count >= 0, "Trying to append item while not initialized!");
+//	assert(ts_max_count == ts_count, "Trying to add task while not fully loaded!");
+//	assert_oom(heap_bytes_free() > OOM_SAFEGUARD, "Almost OOM - ignoring item!");
+//	ts_count++;
+//	ts_max_count++;
+//	// increase array memory
+//	ts_items = realloc(ts_items, sizeof(TS_Item)*ts_count);
+//	int i = ts_max_count-1; // last task
+//	ts_items[i].id = data.id;
+//	ts_items[i].done = data.done;
+//	ts_items[i].title = malloc(strlen(data.title)+1);
+//	if(ts_items[i].title)
+//		strcpy(ts_items[i].title, data.title);
+//	else
+//		APP_LOG(APP_LOG_LEVEL_ERROR, "OOM while allocating title");
+//	if(data.notes) {
+//		ts_items[i].notes = malloc(strlen(data.notes)+1);
+//		if(ts_items[i].notes)
+//			strcpy(ts_items[i].notes, data.notes);
+//		else
+//			APP_LOG(APP_LOG_LEVEL_ERROR, "OOM while allocating notes");
+//	} else
+//		ts_items[i].notes = NULL;
+//	menu_layer_reload_data(mlTasks);
+//	LOG("Task appended, new count is %d", ts_count);
+//}
 void ts_update_item_state_by_id(int id, bool state) {
 	LOG("Updating state for itemId %d", id);
 	for(int i=0; i<ts_count; i++) {
@@ -482,12 +488,12 @@ void ts_show_pebble( void ) {
 
 	listTitle = "Pebble";
 	LOG("ts show called");
-	int taskLength = offline_get_list_length();
+	int taskLength = PersistGetListLength();
 	
 	int count = 0;
 	for ( int i = 0 ; i < taskLength ; ++i )
 	{
-		int done = offline_get_task_status( i );
+		int done = PersistGetTaskStatus( i );
 		if ( -1 == done )
 		{	//do not show deleted tasks
 			continue;
@@ -500,7 +506,7 @@ void ts_show_pebble( void ) {
 	for ( int i = 0 ; i < taskLength ; ++i )
 	{
 		char title[SIZE_TASK_TITLE], note[SIZE_TASK_NOTE];
-		int done = offline_get_task_status( i );
+		int done = PersistGetTaskStatus( i );
 		
 		if ( -1 == done )
 		{	//do not show deleted tasks
@@ -508,8 +514,8 @@ void ts_show_pebble( void ) {
 			continue;
 		}
 		
-		offline_get_task_title( i, title, SIZE_TASK_TITLE );
-		offline_get_task_note( i, note, SIZE_TASK_NOTE );
+		PersistGetTaskTitle( i, title, SIZE_TASK_TITLE );
+		PersistGetTaskNotes( i, note, SIZE_TASK_NOTE );
 		
 		ts_set_item(i-shift, (TS_Item){
 				.id = i,

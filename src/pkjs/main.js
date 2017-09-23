@@ -361,58 +361,58 @@ function IsoDateStringCompare( string1, string2 ) {
 
 
 /* Main logic */
-function doGetAllLists() {
-	console.log("Querying all tasklists");
-	g_tasklists = []; // TODO: use it for caching
-	function haveSomeLists(d) {
-		// this function receives current page
-		// and then either queries for next one
-		// or saves all gathered items to the watch.
+//function doGetAllLists() {
+//	console.log("Querying all tasklists");
+//	g_tasklists = []; // TODO: use it for caching
+//	function haveSomeLists(d) {
+//		// this function receives current page
+//		// and then either queries for next one
+//		// or saves all gathered items to the watch.
 
-		console.log("sending " + d.items.length + " items");
-		// Add all tasklists from the current page to g_tasklists variable
-		for(var i=0; i<d.items.length; i++) {
-			var l = d.items[i];
-			g_tasklists.push({
-					id: l.id,
-					title: l.title,
-			});
-		}
-		if(d.nextPageToken) { // have next page?
-			// query it!
-			queryTasks("users/@me/lists",
-				   {
-					   pageToken: d.nextPageToken
-				   },
-				   haveSomeLists); // get next page and pass it to this same function
-			// and stop for now
-			return;
-		}
+//		console.log("sending " + d.items.length + " items");
+//		// Add all tasklists from the current page to g_tasklists variable
+//		for(var i=0; i<d.items.length; i++) {
+//			var l = d.items[i];
+//			g_tasklists.push({
+//					id: l.id,
+//					title: l.title,
+//			});
+//		}
+//		if(d.nextPageToken) { // have next page?
+//			// query it!
+//			queryTasks("users/@me/lists",
+//				   {
+//					   pageToken: d.nextPageToken
+//				   },
+//				   haveSomeLists); // get next page and pass it to this same function
+//			// and stop for now
+//			return;
+//		}
 
-		g_tasklists.sort(function(a, b) {
-			return strcmp(a.title, b.title);
-		});
-		sendMessage({
-				code: 20, // array start/size
-				scope: 0,
-				count: g_tasklists.length});
-		for(i=0; i<g_tasklists.length; i++) {
-			console.log("Sending item: " + JSON.stringify(g_tasklists[i]));
-			sendMessage({
-					code: 21, // array item
-					scope: 0,
-					item: i,
-					listId: i,
-					title: g_tasklists[i].title});
-		}
-		sendMessage({
-				code: 22, // array end
-				scope: 0,
-				count: g_tasklists.length}); // send resulting list length, just for any
-		console.log("sending finished");
-	}
-	queryTasks("users/@me/lists", null, haveSomeLists); // get first page
-}
+//		g_tasklists.sort(function(a, b) {
+//			return strcmp(a.title, b.title);
+//		});
+//		sendMessage({
+//				code: 20, // array start/size
+//				scope: 0,
+//				count: g_tasklists.length});
+//		for(i=0; i<g_tasklists.length; i++) {
+//			console.log("Sending item: " + JSON.stringify(g_tasklists[i]));
+//			sendMessage({
+//					code: 21, // array item
+//					scope: 0,
+//					item: i,
+//					listId: i,
+//					title: g_tasklists[i].title});
+//		}
+//		sendMessage({
+//				code: 22, // array end
+//				scope: 0,
+//				count: g_tasklists.length}); // send resulting list length, just for any
+//		console.log("sending finished");
+//	}
+//	queryTasks("users/@me/lists", null, haveSomeLists); // get first page
+//}
 function createTaskObjFromGoogle(t) {
 	return {
 		id: t.id,
@@ -457,143 +457,143 @@ function manageTaskPin(task) {
 		],
 	});
 }
-function doGetOneList(listId) {
-	assert(listId in g_tasklists, "No such list!");
-	var realId = g_tasklists[listId].id;
-	queryTasks("lists/"+realId+"/tasks", null, function(d) {
-		// FIXME: support more than 100 tasks (by default Google returns only 100)
-		if(d.nextPageToken)
-			displayError("There are more tasks than we can process");
-		console.log("sending " + d.items.length + " items");
-		var tasks = g_tasklists[listId].tasks = []; // TODO: use it for caching
-		for(var i=0; i<d.items.length; i++) {
-			var l = d.items[i];
-			var task = createTaskObjFromGoogle(l);
-			tasks.push(task);
-			manageTaskPin(task);
-			// TODO: use cached version to determine deleted tasks
-		}
-		var comparator = function(a, b) {
-			if(g_options.sort_status && a.done != b.done)
-				return a.done ? 1 : -1; // move finished tasks to end
-			var ret = 0;
-			if(g_options.sort_date) {
-				ret = strcmp(a.updated, b.updated);
-				if(g_options.sort_date == "desc")
-					ret *= -1; // reverse order - newest first
-				if(ret !== 0)
-					return ret;
-			}
-			if(g_options.sort_due) {
-				if(a.due && b.due) {
-					ret = strcmp(a.due, b.due);
-					if(g_options.sort_due == "desc")
-						ret *= -1; // reverse order - newest first
-				} else if(a.due || b.due) {
-					ret = a.due ? -1 : 1; // move tasks with due available date to top
-				}
-				if(ret !== 0)
-					return ret;
-			}
-			if(g_options.sort_alpha) {
-				ret = strcmp(a.title, b.title);
-				if(ret !== 0)
-					return ret;
-			}
-			return strcmp(a.position, b.position);
-		};
-		tasks.sort(comparator);
-		if(tasks[tasks.length-1].title === "" && !tasks[tasks.length-1].done) // if last task is empty and not completed
-			tasks.pop(); // don't show it
-		sendMessage({
-				code: 20, // array start/size
-				scope: 1,
-				listId: listId,
-				count: tasks.length});
-		for(i=0; i<tasks.length; i++) {
-			console.log("Sending item: " + JSON.stringify(tasks[i]));
-			sendMessage({
-					code: 21, // array item
-					scope: 1,
-					item: i,
-					taskId: i,
-					isDone: tasks[i].done?1:0,
-					title: tasks[i].title,
-					hasNotes: tasks[i].hasNotes?1:0,
-					notes: tasks[i].notes
-			});
-		}
-		sendMessage({
-				code: 22, // array end
-				scope: 1,
-				listId: listId,
-				count: tasks.length}); // send resulting list length, just for any
-		console.log("sending finished");
-	});
-}
-function doGetTaskDetails(taskId) {
-	assert(false, "Not implemented yet");
-}
-function doUpdateTaskStatus(listId, taskId, isDone) {
-	assert(listId in g_tasklists, "No such list!");
-	var list = g_tasklists[listId];
-	assert(taskId in list.tasks, "No such task!");
-	var task = list.tasks[taskId];
-	var taskobj = {
-		status: (isDone?"completed":"needsAction"),
-		completed: null // Google will replace with "now" date if needed
-	};
-	var taskJson = JSON.stringify(taskobj);
-	console.log("New task data: "+taskJson);
-	queryTasks("lists/"+list.id+"/tasks/"+task.id, null, function(d) {
-		console.log("Received: "+JSON.stringify(d));
-		assert(d.id == task.id, "Task ID mismatch!!?");
-		task = createTaskObjFromGoogle(d); // TODO: maybe not create new but only update?
-		assert(list.tasks[taskId].id == task.id, "Task ID or position mismatch!!?");
-		list.tasks[taskId] = task;
-		sendMessage({
-				code: 23, // item updated
-				scope: 2, // task
-				listId: listId,
-				taskId: taskId,
-				isDone: task.done?1:0
-		});
-	}, "PATCH", taskJson);
-}
-function doCreateTask(listId, task, parentTask, prevTask) {
-	assert(listId in g_tasklists, "No such list!");
-	var list = g_tasklists[listId];
-	for(var k in task) {
-		if(task[k] === null)
-			delete task[k];
-	}
-	assert(task.title, 'Title is required!');
-	var taskJson = JSON.stringify(task);
-	var params = null;
-	if(parentTask || prevTask) {
-		params = {};
-		if(parentTask)
-			params.parent = list.tasks[parentTask].id;
-		if(prevTask)
-			params.previous = list.tasks[prevTask].id;
-	}
-	queryTasks('lists/'+list.id+'/tasks', params, function(d) {
-		// success
-		console.log("Received: "+JSON.stringify(d));
-		task = createTaskObjFromGoogle(d);
-		list.tasks.push(task);
-		var taskId = list.tasks.length-1;
-		sendMessage({
-				code: 24, // item added
-				scope: 1, // tasklist / tasks
-				listId: listId,
-				taskId: taskId,
-				title: task.title,
-				notes: task.notes,
-				isDone: task.done?1:0,
-		});
-	}, 'POST', taskJson);
-}
+//function doGetOneList(listId) {
+//	assert(listId in g_tasklists, "No such list!");
+//	var realId = g_tasklists[listId].id;
+//	queryTasks("lists/"+realId+"/tasks", null, function(d) {
+//		// FIXME: support more than 100 tasks (by default Google returns only 100)
+//		if(d.nextPageToken)
+//			displayError("There are more tasks than we can process");
+//		console.log("sending " + d.items.length + " items");
+//		var tasks = g_tasklists[listId].tasks = []; // TODO: use it for caching
+//		for(var i=0; i<d.items.length; i++) {
+//			var l = d.items[i];
+//			var task = createTaskObjFromGoogle(l);
+//			tasks.push(task);
+//			manageTaskPin(task);
+//			// TODO: use cached version to determine deleted tasks
+//		}
+//		var comparator = function(a, b) {
+//			if(g_options.sort_status && a.done != b.done)
+//				return a.done ? 1 : -1; // move finished tasks to end
+//			var ret = 0;
+//			if(g_options.sort_date) {
+//				ret = strcmp(a.updated, b.updated);
+//				if(g_options.sort_date == "desc")
+//					ret *= -1; // reverse order - newest first
+//				if(ret !== 0)
+//					return ret;
+//			}
+//			if(g_options.sort_due) {
+//				if(a.due && b.due) {
+//					ret = strcmp(a.due, b.due);
+//					if(g_options.sort_due == "desc")
+//						ret *= -1; // reverse order - newest first
+//				} else if(a.due || b.due) {
+//					ret = a.due ? -1 : 1; // move tasks with due available date to top
+//				}
+//				if(ret !== 0)
+//					return ret;
+//			}
+//			if(g_options.sort_alpha) {
+//				ret = strcmp(a.title, b.title);
+//				if(ret !== 0)
+//					return ret;
+//			}
+//			return strcmp(a.position, b.position);
+//		};
+//		tasks.sort(comparator);
+//		if(tasks[tasks.length-1].title === "" && !tasks[tasks.length-1].done) // if last task is empty and not completed
+//			tasks.pop(); // don't show it
+//		sendMessage({
+//				code: 20, // array start/size
+//				scope: 1,
+//				listId: listId,
+//				count: tasks.length});
+//		for(i=0; i<tasks.length; i++) {
+//			console.log("Sending item: " + JSON.stringify(tasks[i]));
+//			sendMessage({
+//					code: 21, // array item
+//					scope: 1,
+//					item: i,
+//					taskId: i,
+//					isDone: tasks[i].done?1:0,
+//					title: tasks[i].title,
+//					hasNotes: tasks[i].hasNotes?1:0,
+//					notes: tasks[i].notes
+//			});
+//		}
+//		sendMessage({
+//				code: 22, // array end
+//				scope: 1,
+//				listId: listId,
+//				count: tasks.length}); // send resulting list length, just for any
+//		console.log("sending finished");
+//	});
+//}
+//function doGetTaskDetails(taskId) {
+//	assert(false, "Not implemented yet");
+//}
+//function doUpdateTaskStatus(listId, taskId, isDone) {
+//	assert(listId in g_tasklists, "No such list!");
+//	var list = g_tasklists[listId];
+//	assert(taskId in list.tasks, "No such task!");
+//	var task = list.tasks[taskId];
+//	var taskobj = {
+//		status: (isDone?"completed":"needsAction"),
+//		completed: null // Google will replace with "now" date if needed
+//	};
+//	var taskJson = JSON.stringify(taskobj);
+//	console.log("New task data: "+taskJson);
+//	queryTasks("lists/"+list.id+"/tasks/"+task.id, null, function(d) {
+//		console.log("Received: "+JSON.stringify(d));
+//		assert(d.id == task.id, "Task ID mismatch!!?");
+//		task = createTaskObjFromGoogle(d); // TODO: maybe not create new but only update?
+//		assert(list.tasks[taskId].id == task.id, "Task ID or position mismatch!!?");
+//		list.tasks[taskId] = task;
+//		sendMessage({
+//				code: 23, // item updated
+//				scope: 2, // task
+//				listId: listId,
+//				taskId: taskId,
+//				isDone: task.done?1:0
+//		});
+//	}, "PATCH", taskJson);
+//}
+//function doCreateTask(listId, task, parentTask, prevTask) {
+//	assert(listId in g_tasklists, "No such list!");
+//	var list = g_tasklists[listId];
+//	for(var k in task) {
+//		if(task[k] === null)
+//			delete task[k];
+//	}
+//	assert(task.title, 'Title is required!');
+//	var taskJson = JSON.stringify(task);
+//	var params = null;
+//	if(parentTask || prevTask) {
+//		params = {};
+//		if(parentTask)
+//			params.parent = list.tasks[parentTask].id;
+//		if(prevTask)
+//			params.previous = list.tasks[prevTask].id;
+//	}
+//	queryTasks('lists/'+list.id+'/tasks', params, function(d) {
+//		// success
+//		console.log("Received: "+JSON.stringify(d));
+//		task = createTaskObjFromGoogle(d);
+//		list.tasks.push(task);
+//		var taskId = list.tasks.length-1;
+//		sendMessage({
+//				code: 24, // item added
+//				scope: 1, // tasklist / tasks
+//				listId: listId,
+//				taskId: taskId,
+//				title: task.title,
+//				notes: task.notes,
+//				isDone: task.done?1:0,
+//		});
+//	}, 'POST', taskJson);
+//}
 
 var g_google_list = null;
 var g_watch_list = null;
@@ -709,13 +709,13 @@ function SendListToWatch( list ) {
 	
 	sendMessage({
 			code: 53, // array start/size
-			scope: 1,
+			//scope: 1,
 			length: list.tasks.length});
 	
 	for( var i = 0 ; i < list.tasks.length ; i++ ) {
 		sendMessage({
 				code: 54, // array item
-				scope: 1,
+				//scope: 1,
 				item: i,
 				id: list.tasks[i].id,
 				title: list.tasks[i].title,
@@ -726,8 +726,9 @@ function SendListToWatch( list ) {
 	}
 	sendMessage({
 			code: 55, // array end
-			scope: 1,
-			count: list.tasks.length}); // send resulting list length, just for any
+			//scope: 1,
+			//count: list.tasks.length
+	    }); // send resulting list length, just for any
 }
 
 function GoogleTaskUpdate ( task ) {
@@ -1033,59 +1034,59 @@ Pebble.addEventListener("webviewclosed", function(e) {
 Pebble.addEventListener("appmessage", function(e) {
 	console.log("Received message: " + JSON.stringify(e.payload));
 	switch(e.payload.code) {
-	case 10: // get info
-		switch(e.payload.scope) {
-		case 0: // all lists
-			doGetAllLists();
-			break;
-		case 1: // one list
-			assert('listId' in e.payload, "List ID was not provided for GetOneList query");
-			doGetOneList(e.payload.listId);
-			break;
-		case 2: // one task
-			assert('taskId' in e.payload, "Task ID was not provided for GetTaskDetails query");
-			doGetTaskDetails(e.payload.taskId);
-			break;
-		default:
-			console.log("Unknown message scope "+e.payload.scope);
-			break;
-		}
-		break;
-	case 11: // update info
-		switch(e.payload.scope) {
-		case 2: // one task (here - "done" status)
-			assert('listId' in e.payload, "List ID was not provided for ChangeTaskStatus query");
-			assert('taskId' in e.payload, "Task ID was not provided for ChangeTaskStatus query");
-			assert('isDone' in e.payload, "New task status was not provided for ChangeTaskStatus query");
-			doUpdateTaskStatus(e.payload.listId, e.payload.taskId, e.payload.isDone);
-			break;
-		case 0: // all lists
-		case 1: // one list
-			console.log("Cannot 'update' info for scope "+e.payload.scope+" [yet]");
-			break;
-		default:
-			console.log("Unknown message scope "+e.payload.scope);
-			break;
-		}
-		break;
-	case 12: // post info
-		switch(e.payload.scope) {
-		case 2: // one task (here - create new task)
-			assert('listId' in e.payload, 'List ID was not profided for PostTask query');
-			assert('title' in e.payload, 'Task title was not provided for PostTask query');
-			doCreateTask(e.payload.listId, {
-				// TODO: allow specifying prev/parent?
-				title: e.payload.title,
-				notes: e.payload.notes,
-				status: e.payload.isDone ? 'completed' : (
-						e.payload.isDone === false ? 'needsAction' : null),
-			});
-			break;
-		default:
-			console.log('Unknown message scope '+e.payload.scope);
-			break;
-		}
-		break;
+	//case 10: // get info
+	//	switch(e.payload.scope) {
+	//	case 0: // all lists
+	//		doGetAllLists();
+	//		break;
+	//	case 1: // one list
+	//		assert('listId' in e.payload, "List ID was not provided for GetOneList query");
+	//		doGetOneList(e.payload.listId);
+	//		break;
+	//	case 2: // one task
+	//		assert('taskId' in e.payload, "Task ID was not provided for GetTaskDetails query");
+	//		doGetTaskDetails(e.payload.taskId);
+	//		break;
+	//	default:
+	//		console.log("Unknown message scope "+e.payload.scope);
+	//		break;
+	//	}
+	//	break;
+	//case 11: // update info
+	//	switch(e.payload.scope) {
+	//	case 2: // one task (here - "done" status)
+	//		assert('listId' in e.payload, "List ID was not provided for ChangeTaskStatus query");
+	//		assert('taskId' in e.payload, "Task ID was not provided for ChangeTaskStatus query");
+	//		assert('isDone' in e.payload, "New task status was not provided for ChangeTaskStatus query");
+	//		doUpdateTaskStatus(e.payload.listId, e.payload.taskId, e.payload.isDone);
+	//		break;
+	//	case 0: // all lists
+	//	case 1: // one list
+	//		console.log("Cannot 'update' info for scope "+e.payload.scope+" [yet]");
+	//		break;
+	//	default:
+	//		console.log("Unknown message scope "+e.payload.scope);
+	//		break;
+	//	}
+	//	break;
+	//case 12: // post info
+	//	switch(e.payload.scope) {
+	//	case 2: // one task (here - create new task)
+	//		assert('listId' in e.payload, 'List ID was not profided for PostTask query');
+	//		assert('title' in e.payload, 'Task title was not provided for PostTask query');
+	//		doCreateTask(e.payload.listId, {
+	//			// TODO: allow specifying prev/parent?
+	//			title: e.payload.title,
+	//			notes: e.payload.notes,
+	//			status: e.payload.isDone ? 'completed' : (
+	//					e.payload.isDone === false ? 'needsAction' : null),
+	//		});
+	//		break;
+	//	default:
+	//		console.log('Unknown message scope '+e.payload.scope);
+	//		break;
+	//	}
+	//	break;
 	case 41: // retrieve token - reply received
 		if("access_token" in e.payload)
 			g_access_token = e.payload.access_token;

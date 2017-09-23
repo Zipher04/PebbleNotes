@@ -21,7 +21,7 @@ int offline_read_tasks( int listId )
 
 void offline_read_list_pebble( void )
 {
-	int taskCount = offline_get_list_length();
+	int taskCount = PersistGetListLength();
 
 	if ( taskCount <= 0 )
 	{
@@ -33,12 +33,12 @@ void offline_read_list_pebble( void )
 	char title[titleLengthMax], note[noteLengthMax];
 	for ( int taskId = 0; taskId < taskCount; ++taskId )
 	{
-		offline_get_task_title( taskId, title, titleLengthMax );
-		offline_get_task_note( taskId, note, noteLengthMax );
+		PersistGetTaskTitle( taskId, title, titleLengthMax );
+		PersistGetTaskNotes( taskId, note, noteLengthMax );
 		ts_set_item( taskId, ( TS_Item )
 		{
 			.id = taskId,
-				.done = offline_get_task_status( taskId ),
+				.done = PersistGetTaskStatus( taskId ),
 				.title = title,
 				.notes = note,
 		} );
@@ -49,12 +49,12 @@ void offline_read_list_pebble( void )
 /**
  *
  */
-void offline_set_list_id( char* id )
+void PersisitSetListId( char* id )
 {
 	int byteWriten = persist_write_string( PERSIST_LIST_ID, id );
 	assert( byteWriten > 0, "persist write failed." );
 }
-void offline_get_list_id( char* id, int length )
+void PersisitGetListId( char* id, int length )
 {
 	if ( !persist_exists( PERSIST_LIST_ID ) )
 	{
@@ -68,13 +68,13 @@ void offline_get_list_id( char* id, int length )
 /**
  * Number of tasks inside list
  */
-void offline_set_list_length( int length )
+void PersistSetListLength( int length )
 {
 	assert( length < c_list_length_max, "list length too large" );
 	int byteWriten = persist_write_int( PERSIST_LIST_LENGTH, length );
 	assert( byteWriten > 0, "persist write failed." );
 }
-int offline_get_list_length( void )
+int PersistGetListLength( void )
 {
 	//will be 0 if not set
 	return persist_read_int( PERSIST_LIST_LENGTH );
@@ -83,12 +83,12 @@ int offline_get_list_length( void )
 /**
  *
  */
-void offline_set_list_sync_time( char* time )
+void PersistSetListSyncTime( char* time )
 {
 	int byteWriten = persist_write_string( PERSIST_LIST_SYNC_TIME, time );
 	assert( byteWriten > 0, "persist write failed." );
 }
-void offline_get_list_sync_time( char* time, int length )
+void PersistGetListSyncTime( char* time, int length )
 {
 	assert( length > 0, "length < 0" );
 	if ( !persist_exists( PERSIST_LIST_SYNC_TIME ) )
@@ -103,13 +103,13 @@ void offline_get_list_sync_time( char* time, int length )
 /**
  *
  */
-void offline_set_task_id( int i, char* id )
+void PersistSetTaskId( int i, char* id )
 {
 	assert( i < c_list_length_max && i >= 0, "Invalid task index" );
 	int byteWriten = persist_write_string( i*c_task_shift_size + PERSIST_TASK_ID_0, id );
 	assert( byteWriten > 0, "persist write failed." );
 }
-void offline_get_task_id( int i, char* id, int length )
+void PersistGetTaskId( int i, char* id, int length )
 {
 	const int target = i*c_task_shift_size + PERSIST_TASK_ID_0;
 	assert( length > 0, "Length <= 0" );
@@ -125,13 +125,13 @@ void offline_get_task_id( int i, char* id, int length )
 /**
  *
  */
-void offline_set_task_title( int i, char* title )
+void PersistSetTaskTitle( int i, char* title )
 {
 	assert( i < c_list_length_max && i >= 0, "Invalid task index" );
 	int byteWriten = persist_write_string( i*c_task_shift_size + PERSIST_TASK_TITLE_0, title );
 	assert( byteWriten > 0, "persist write failed." );
 }
-void offline_get_task_title( int i, char* title, int length )
+void PersistGetTaskTitle( int i, char* title, int length )
 {
 	const int target = i*c_task_shift_size + PERSIST_TASK_TITLE_0;
 	assert( length > 0, "Length <= 0" );
@@ -147,13 +147,13 @@ void offline_get_task_title( int i, char* title, int length )
 /**
  *
  */
-void offline_set_task_note( int i, char* note )
+void PersistSetTaskNotes( int i, char* note )
 {
 	assert( i < c_list_length_max && i >= 0, "Invalid task index" );
 	int byteWriten = persist_write_string( i*c_task_shift_size + PERSIST_TASK_NOTE_0, note );
 	assert( byteWriten > 0, "persist write failed." );
 }
-void offline_get_task_note( int i, char* note, int length )
+void PersistGetTaskNotes( int i, char* note, int length )
 {
 	const int target = i*c_task_shift_size + PERSIST_TASK_NOTE_0;
 	assert( length > 0, "Length <= 0" );
@@ -169,13 +169,13 @@ void offline_get_task_note( int i, char* note, int length )
 /**
  * @para done: 0:unchecked, 1:checked
  */
-void offline_set_task_status( int i, int done )
+void PersistSetTaskStatus( int i, int done )
 {
 	assert( i < c_list_length_max && i >= 0, "Invalid task index" );
 	int byteWriten = persist_write_int( i*c_task_shift_size + PERSIST_TASK_DONE_0, done );
 	assert( byteWriten > 0, "persist write failed." );
 }
-int offline_get_task_status( int i )
+int PersistGetTaskStatus( int i )
 {
 	return persist_read_int( i*c_task_shift_size + PERSIST_TASK_DONE_0 );
 }
@@ -183,21 +183,21 @@ int offline_get_task_status( int i )
 /**
  *
  */
-void offline_set_task_update_time( int i, char* time )
+void PersistSetTaskUpdateTime( int i, char* time )
 {
 	const int target = i*c_task_shift_size + PERSIST_TASK_UPDATE_TIME_0;
 	int byteWriten = persist_write_string( target, time );
 	assert( byteWriten > 0, "persist write failed." );
 }
 
-void offline_update_task_update_time( int i )
+void PersistUpdateTaskUpdateTime( int i )
 {
 	char time[30];
 	GetIsoTime( time, 30 );
-	offline_set_task_update_time( i, time );
+	PersistSetTaskUpdateTime( i, time );
 }
 
-void offline_get_task_update_time( int i, char* time, int length )
+void PersistGetTaskUpdateTime( int i, char* time, int length )
 {
 	const int target = i*c_task_shift_size + PERSIST_TASK_UPDATE_TIME_0;
 	assert( persist_exists( target ), "Read task with invalid index" );
@@ -205,9 +205,9 @@ void offline_get_task_update_time( int i, char* time, int length )
 	persist_read_string( target, time, length );
 }
 
-void offline_remove_task( int index )
+void PersistRemoveTask( int index )
 {
-	int length = offline_get_list_length();
+	int length = PersistGetListLength();
 	assert( index < length, "Invalid index for task removing!" );
 	
 	char id[SIZE_TASK_ID], title[SIZE_TASK_TITLE], notes[SIZE_TASK_NOTE], time[SIZE_TIME];
@@ -215,20 +215,20 @@ void offline_remove_task( int index )
 
 	for ( int i = index ; i < length - 1 ; ++i )
 	{
-		offline_get_task_id( i + 1, id, SIZE_TASK_ID );
-		offline_set_task_id( i, id );
+		PersistGetTaskId( i + 1, id, SIZE_TASK_ID );
+		PersistSetTaskId( i, id );
 
-		offline_get_task_title( i + 1, title, SIZE_TASK_TITLE );
-		offline_set_task_title( i, title );
+		PersistGetTaskTitle( i + 1, title, SIZE_TASK_TITLE );
+		PersistSetTaskTitle( i, title );
 
-		offline_get_task_note( i + 1, notes, SIZE_TASK_NOTE );
-		offline_set_task_note( i, notes );
+		PersistGetTaskNotes( i + 1, notes, SIZE_TASK_NOTE );
+		PersistSetTaskNotes( i, notes );
 
-		status = offline_get_task_status( i + 1 );
-		offline_set_task_status( i, status );
+		status = PersistGetTaskStatus( i + 1 );
+		PersistSetTaskStatus( i, status );
 
-		offline_get_task_update_time( i + 1, time, SIZE_TIME );
-		offline_set_task_update_time( i, time );
+		PersistGetTaskUpdateTime( i + 1, time, SIZE_TIME );
+		PersistSetTaskUpdateTime( i, time );
 	}
-	offline_set_list_length( length - 1 );
+	PersistSetListLength( length - 1 );
 }

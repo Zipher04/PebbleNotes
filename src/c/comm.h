@@ -5,10 +5,10 @@
 #ifndef _COMM_H
 #define _COMM_H
 
-void comm_query_list( void );
+//void comm_query_list( void );
 
 // read lists
-void comm_query_tasklists();
+//void comm_query_tasklists();
 
 // read tasks from a list
 void comm_query_tasks(int listId);
@@ -17,10 +17,10 @@ void comm_query_tasks(int listId);
 void comm_query_task_details(int, int);
 
 // Done/undone an existing task
-void comm_update_task_status(int listId, int taskId, bool newStatus);
+//void comm_update_task_status(int listId, int taskId, bool newStatus);
 
 // Create a new task
-void comm_create_task(int listId, char* title, char* notes);
+//void comm_create_task(int listId, char* title, char* notes);
 
 typedef void(* CommJsReadyCallback)(void *data);
 

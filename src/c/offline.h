@@ -26,54 +26,54 @@ void offline_read_list_pebble( void );
  *
  *@param length is at least 34.
  */
-void offline_set_list_id( char* id );
-void offline_get_list_id( char* id, int length );
+void PersisitSetListId( char* id );
+void PersisitGetListId( char* id, int length );
 
 /**
  * Number of tasks inside list
  */
-void offline_set_list_length( int length );
-int offline_get_list_length( void );
+void PersistSetListLength( int length );
+int PersistGetListLength( void );
 
 /**
  * Read last sync time. Will be "" if never synced.
  */
-void offline_set_list_sync_time( char* time );
-void offline_get_list_sync_time( char* time, int length );
+void PersistSetListSyncTime( char* time );
+void PersistGetListSyncTime( char* time, int length );
 
 /**
  * id will be "" for task never synced.
  *@param length is at least 46.
  */
-void offline_set_task_id( int i, char* id );
-void offline_get_task_id( int i, char* id, int length );
+void PersistSetTaskId( int i, char* id );
+void PersistGetTaskId( int i, char* id, int length );
 
 /**
  *
  */
-void offline_set_task_title( int i, char* title );
-void offline_get_task_title( int i, char* title, int length );
+void PersistSetTaskTitle( int i, char* title );
+void PersistGetTaskTitle( int i, char* title, int length );
 
 /**
  *
  */
-void offline_set_task_note( int i, char* note );
-void offline_get_task_note( int i, char* note, int length );
+void PersistSetTaskNotes( int i, char* note );
+void PersistGetTaskNotes( int i, char* note, int length );
 
 /**
  * @para status: 0:unchecked, 1:checked, -1: deleted
  */
-void offline_set_task_status( int i, int status );
-int offline_get_task_status( int i );
+void PersistSetTaskStatus( int i, int status );
+int PersistGetTaskStatus( int i );
 
 /**
  * The time the task is last modified. Will be "" if never synced
  *@param length is at least 26.
  */
-void offline_set_task_update_time( int i, char* time );
-void offline_update_task_update_time( int i );
-void offline_get_task_update_time( int i, char* time, int length );
+void PersistSetTaskUpdateTime( int i, char* time );
+void PersistUpdateTaskUpdateTime( int i );
+void PersistGetTaskUpdateTime( int i, char* time, int length );
 
-void offline_remove_task( int i );
+void PersistRemoveTask( int i );
 
 #endif

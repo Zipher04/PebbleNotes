@@ -29,15 +29,15 @@ void TaskShowNotes( int index, void *context )
 void TaskDelete( int index, void *context )
 {
 	char id[SIZE_TASK_ID] = "";
-	offline_get_task_id( g_currentTaskIndex, id, SIZE_TASK_ID );
+	PersistGetTaskId( g_currentTaskIndex, id, SIZE_TASK_ID );
 	if ( 0 == strlen( id ) )
 	{
-		offline_remove_task( g_currentTaskIndex );
+		PersistRemoveTask( g_currentTaskIndex );
 	}
 	else
 	{
-		offline_set_task_status( g_currentTaskIndex, -1 );
-		offline_update_task_update_time( g_currentTaskIndex );
+		PersistSetTaskStatus( g_currentTaskIndex, -1 );
+		PersistUpdateTaskUpdateTime( g_currentTaskIndex );
 	}
 	
 	ts_reload_items();
@@ -48,8 +48,8 @@ void TertiaryTaskEditTitleCallBack( const char* result, size_t result_length, vo
 {
 	if ( 0 == result_length )
 		return;
-	offline_set_task_title( g_currentTaskIndex, (char*)result );
-	offline_update_task_update_time( g_currentTaskIndex );
+	PersistSetTaskTitle( g_currentTaskIndex, (char*)result );
+	PersistUpdateTaskUpdateTime( g_currentTaskIndex );
 	ts_reload_items();
 	window_stack_pop( true );
 }
@@ -62,8 +62,8 @@ void TaskEditTitle( int index, void *context )
 
 void TertiaryTaskEditNotesCallBack( const char* result, size_t result_length, void* extra )
 {
-	offline_set_task_note( g_currentTaskIndex, (char*)result );
-	offline_update_task_update_time( g_currentTaskIndex );
+	PersistSetTaskNotes( g_currentTaskIndex, (char*)result );
+	PersistUpdateTaskUpdateTime( g_currentTaskIndex );
 	ts_reload_items();
 	window_stack_pop( true );
 }
