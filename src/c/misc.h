@@ -2,12 +2,12 @@
 #define _COMMON_H
 
 #ifndef NDEBUG
-#define LOG(args...) APP_LOG(APP_LOG_LEVEL_DEBUG, args)
+#define LOG(...) APP_LOG(APP_LOG_LEVEL_DEBUG, __VA_ARGS__)
 #else
-#define LOG(args...) 
+#define LOG(...) 
 #endif
-#define assert(e, msg...) if(!(e)) { APP_LOG(APP_LOG_LEVEL_ERROR, msg); return; }
-#define assert_oom(e, msg...) if(!(e)) { APP_LOG(APP_LOG_LEVEL_ERROR, msg); sb_show("OOM"); }
+#define assert(e, ...) if(!(e)) { APP_LOG(APP_LOG_LEVEL_ERROR, __VA_ARGS__); return; }
+#define assert_oom(e, ...) if(!(e)) { APP_LOG(APP_LOG_LEVEL_ERROR, __VA_ARGS__); sb_show("OOM"); }
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
