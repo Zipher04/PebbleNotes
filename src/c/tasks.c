@@ -71,6 +71,7 @@ void TertiaryCreatTaskCallBack( const char* result, size_t result_length, void* 
 	int index = PersistGetListLength();
 	
 	PersistSetTaskTitle( index, (char*)result );
+	PersistSetTaskStatus( index, 0 );
 	PersistUpdateTaskUpdateTime( index );
 	PersistSetListLength( index+1 );
 	ts_reload_items();
@@ -516,13 +517,14 @@ void ts_show_pebble( void ) {
 		
 		PersistGetTaskTitle( i, title, SIZE_TASK_TITLE );
 		PersistGetTaskNotes( i, note, SIZE_TASK_NOTE );
-		
-		ts_set_item(i-shift, (TS_Item){
+		LOG("Adding %d %s to slot %d", i, title, count-1);
+		ts_set_item(count-1, (TS_Item){
 				.id = i,
 				.done = done,
 				.title = title,
 				.notes = note,
 			});
+		--count;
 	}
 	
 	LOG("ts show returned");

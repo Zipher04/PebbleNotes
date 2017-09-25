@@ -651,9 +651,15 @@ function GetTasksFromGoogle() {
 			//manageTaskPin(task);
 			// TODO: use cached version to determine deleted tasks
 		}
+		if( tasks[tasks.length-1].title === "" && !tasks[tasks.length-1].done ) // if last task is empty and not completed
+			tasks.pop(); // don't show it
+		console.log( "Syncing watch and google..." );
+		SyncWatchAndGoogle();
+		console.log("Syncing watch and google finished");
+
 		var comparator = function(a, b) {
-			if(g_options.sort_status && a.done != b.done)
-				return a.done ? 1 : -1; // move finished tasks to end
+			if(g_options.sort_status )
+				return strcmp( a.status, b.status ); // move finished tasks to start
 			var ret = 0;
 			if(g_options.sort_date) {
 				ret = strcmp(a.updated, b.updated);
@@ -680,20 +686,7 @@ function GetTasksFromGoogle() {
 			}
 			return strcmp(a.position, b.position);
 		};
-		tasks.sort(comparator);
-		if( tasks[tasks.length-1].title === "" && !tasks[tasks.length-1].done ) // if last task is empty and not completed
-			tasks.pop(); // don't show it
-		console.log( "Syncing watch and google..." );
-		SyncWatchAndGoogle();
-		console.log("Syncing watch and google finished");
-
-		if ( g_options.sort_status )
-		{
-		    var comparator = function(a, b) {
-		        return strcmp( b.status, a.status );
-		    }
-		    g_watch_list.tasks.sort(comparator);
-		}
+		g_watch_list.tasks.sort(comparator);
 
 		SendListToWatch( g_watch_list );
 	});
