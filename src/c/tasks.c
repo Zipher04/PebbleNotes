@@ -70,7 +70,9 @@ void TertiaryCreatTaskCallBack( const char* result, size_t result_length, void* 
 	LOG("Tertiary creating task");
 	int index = PersistGetListLength();
 	
+	PersistSetTaskId( index, "" );
 	PersistSetTaskTitle( index, (char*)result );
+	PersistSetTaskNotes( index, "" );
 	PersistSetTaskStatus( index, 0 );
 	PersistUpdateTaskUpdateTime( index );
 	PersistSetListLength( index+1 );
@@ -232,6 +234,10 @@ static void ts_draw_row_cb(GContext *ctx, const Layer *cell_layer, MenuIndex *id
 		ts_twoline_cell_draw(ctx, cell_layer, title, icon, is_done); // use custom func, condensed font
 }
 static void ts_select_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
+	if ( ts_count < 0 )
+	{	//not init yet
+		return;
+	}
 #ifdef PBL_MICROPHONE
 	if(idx->section == options_task_actions_position() - 1) {
 		// actions
@@ -250,6 +256,10 @@ static void ts_select_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
 	ts_update_item_state_by_id( task.id, !task.done );
 }
 static void ts_select_long_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
+	if ( ts_count < 0 )
+	{	//not init yet
+		return;
+	}
 #ifdef PBL_MICROPHONE
 	if(idx->section == options_task_actions_position() - 1) // actions
 	{

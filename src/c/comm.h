@@ -11,10 +11,10 @@
 //void comm_query_tasklists();
 
 // read tasks from a list
-void comm_query_tasks(int listId);
+//void comm_query_tasks(int listId);
 
 // Not implemnted
-void comm_query_task_details(int, int);
+//void comm_query_task_details(int, int);
 
 // Done/undone an existing task
 //void comm_update_task_status(int listId, int taskId, bool newStatus);
@@ -25,7 +25,7 @@ void comm_query_task_details(int, int);
 typedef void(* CommJsReadyCallback)(void *data);
 
 // Do something when JS is ready, not used
-void comm_on_js_ready(CommJsReadyCallback*, void*);
+//void comm_on_js_ready(CommJsReadyCallback*, void*);
 
 // Returns false if there is no bluetooth connection
 // or there is unsent message waiting (usually if JS was not loaded yet)
@@ -41,6 +41,5 @@ void comm_init();
 void comm_deinit();
 
 void TrySyncWithPhone( void );
-int IsSyncOK( void );
 
 #endif

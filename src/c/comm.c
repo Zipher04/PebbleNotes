@@ -67,9 +67,9 @@ bool comm_is_available_silent() {
 //	dict_write_tuplet(iter, &scope);
 //	app_message_outbox_send();
 //}
-void comm_query_tasks_cb(void *arg) {
-	comm_query_tasks((int)arg);
-}
+//void comm_query_tasks_cb(void *arg) {
+//	comm_query_tasks((int)arg);
+//}
 //void comm_query_tasks(int listId) {
 //	if ( !comm_is_bluetooth_available() )
 //	{
@@ -101,9 +101,9 @@ void comm_query_tasks_cb(void *arg) {
 //	dict_write_tuplet(iter, &tListId);
 //	app_message_outbox_send();
 //}
-void comm_query_task_details(int listId, int taskId) {
-	LOG("Querying task details for %d, %d (not implemented)", listId, taskId);
-}
+//void comm_query_task_details(int listId, int taskId) {
+//	LOG("Querying task details for %d, %d (not implemented)", listId, taskId);
+//}
 
 //void comm_update_task_status(int listId, int taskId, bool newStatus) {
 //	if(!comm_is_available())

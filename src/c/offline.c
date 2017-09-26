@@ -205,6 +205,18 @@ void PersistGetTaskUpdateTime( int i, char* time, int length )
 	persist_read_string( target, time, length );
 }
 
+static void PersistClearTaskData( int i )
+{
+	const int length = PersistGetListLength();
+	assert( i < length, "Invalid index for task cleaning!" );
+	persist_delete( PERSIST_TASK_ID_0 + i*c_task_shift_size );
+	persist_delete( PERSIST_TASK_DONE_0 + i*c_task_shift_size );
+	persist_delete( PERSIST_TASK_TITLE_0 + i*c_task_shift_size );
+	persist_delete( PERSIST_TASK_NOTE_0 + i*c_task_shift_size );
+	persist_delete( PERSIST_TASK_UPDATE_TIME_0 + i*c_task_shift_size );
+	persist_delete( PERSIST_TASK_END + i*c_task_shift_size );
+}
+
 void PersistRemoveTask( int index )
 {
 	int length = PersistGetListLength();
@@ -230,5 +242,7 @@ void PersistRemoveTask( int index )
 		PersistGetTaskUpdateTime( i + 1, time, SIZE_TIME );
 		PersistSetTaskUpdateTime( i, time );
 	}
+	PersistClearTaskData( length - 1 );
 	PersistSetListLength( length - 1 );
+
 }
