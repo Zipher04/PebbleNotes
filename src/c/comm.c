@@ -198,7 +198,7 @@ void SentTaskToPhone( int taskIndex )
 	Tuplet tDone = TupletInteger( KEY_DONE, PersistGetTaskStatus(taskIndex) );
 	
 	int result = app_message_outbox_begin(&iter);
-	if ( APP_MSG_OK == result )
+	if ( APP_MSG_OK != result )
 	{
 		sb_show( "Error: outbox failed" );
 		return;
