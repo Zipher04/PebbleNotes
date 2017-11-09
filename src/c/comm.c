@@ -185,6 +185,10 @@ void SentTaskToPhone( int taskIndex )
 	PersistGetTaskNotes( taskIndex, note, SIZE_TASK_NOTE );
 	PersistGetTaskUpdateTime( taskIndex, updateTime, SIZE_TIME );
 	
+	sb_printf_alloc(32);
+	snprintf( sb_printf_get(), 32, "Reading task %d...", taskIndex );
+	sb_printf_update();
+	
 	DictionaryIterator *iter;
 	Tuplet tCode = TupletInteger( KEY_CODE, CODE_SEND_TASK );
 	Tuplet tId = TupletCString( KEY_ID, &id[0] );
@@ -194,7 +198,11 @@ void SentTaskToPhone( int taskIndex )
 	Tuplet tDone = TupletInteger( KEY_DONE, PersistGetTaskStatus(taskIndex) );
 	
 	int result = app_message_outbox_begin(&iter);
-	assert( APP_MSG_OK == result, "Error: outbox failed" );
+	if ( APP_MSG_OK == result )
+	{
+		sb_show( "Error: outbox failed" );
+		return;
+	}
 	dict_write_tuplet(iter, &tCode);
 	dict_write_tuplet(iter, &tId );
 	dict_write_tuplet(iter, &tTitle);
@@ -314,7 +322,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		sb_show("List sent...");
 		if ( 0 == PersistGetListLength() )
 		{
-			sb_show("Syncing with Google...");
+			sb_show("Reading from Google...");
 			SendCodeToPhone( CODE_SYNC_LIST );
 		}
 		else
