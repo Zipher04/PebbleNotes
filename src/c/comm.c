@@ -311,6 +311,7 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		SentListToPhone();
 		return;
 	} else if( code == CODE_SEND_LIST_ACK ) {
+		sb_show("List sent...");
 		if ( 0 == PersistGetListLength() )
 		{
 			SendCodeToPhone( CODE_SYNC_LIST );
@@ -319,15 +320,18 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		else
 		{
 			SendCodeToPhone( CODE_SEND_TASK_START );
+			sb_show("Sending task..");
 		}
 		return;
 	} else if ( CODE_SEND_TASK_START_ACK == code ) {
+		sb_show("Sending task...");
 		SentTaskToPhone( 0 );
 		gTaskSendingIndex = 1;
 		return;
 	} else if ( CODE_SEND_TASK_ACK == code ) {
 		if ( gTaskSendingIndex >= PersistGetListLength() )
 		{
+			sb_show("All task sent...");
 			SendCodeToPhone( CODE_SEND_TASK_END );
 		}
 		else 
@@ -336,10 +340,12 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		}
 		return;
 	} else if ( CODE_SEND_TASK_END_ACK == code ) {
+		sb_show("Creating new task...");
 		SendCodeToPhone( CODE_CREATE_NEW_TASK );
 		return;
 	} else if ( CODE_CREATE_NEW_TASK_DONE == code )
 	{
+		sb_show("Syncing with Google...");
 		SendCodeToPhone( CODE_SYNC_LIST );
 		return;
 	}
