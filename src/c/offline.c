@@ -242,7 +242,6 @@ void PersistRemoveTask( int index )
 		PersistGetTaskUpdateTime( i + 1, time, SIZE_TIME );
 		PersistSetTaskUpdateTime( i, time );
 	}
-	PersistClearTaskData( length - 1 );
 	PersistSetListLength( length - 1 );
-
+	PersistClearTaskData( length - 1 );
 }
