@@ -314,8 +314,8 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 		sb_show("List sent...");
 		if ( 0 == PersistGetListLength() )
 		{
+			sb_show("Syncing with Google...");
 			SendCodeToPhone( CODE_SYNC_LIST );
-			sb_show("Sync request sent");
 		}
 		else
 		{
