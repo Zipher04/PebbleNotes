@@ -96,7 +96,7 @@ enum EPersistStorageIndex
 enum ESize
 {
 	SIZE_LIST_ID = 50,
-	SIZE_TASK_ID = 65,
+	SIZE_TASK_ID = 67,
 	SIZE_TASK_TITLE = 50,
 	SIZE_TASK_NOTE = 50,
 	SIZE_TIME = 26
