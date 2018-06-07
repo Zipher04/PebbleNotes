@@ -211,7 +211,8 @@ void SentTaskToPhone( int taskIndex )
 	dict_write_tuplet(iter, &tUpdateTime );
 	app_message_outbox_send();
 	sb_printf_alloc(32);
-	snprintf( sb_printf_get(), 32, "Sending task %d...", taskIndex );
+	snprintf( sb_printf_get(), 32, "Sending task %d %6s", taskIndex, title );
+	//snprintf( sb_printf_get(), 32, "Sending task %d...", taskIndex );
 	sb_printf_update();
 }
 
