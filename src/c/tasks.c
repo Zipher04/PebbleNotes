@@ -36,8 +36,8 @@ static GFont menuFont;
 
 static int listId = -1;
 static char* listTitle = "?!?";
-static int ts_count = -1;
-static int ts_max_count = -1;
+static int ts_count = 0;
+static int ts_max_count = 0;
 static TS_Item *ts_items = NULL;
 
 #ifdef PBL_MICROPHONE
@@ -107,7 +107,7 @@ static uint16_t ts_get_num_sections_cb(MenuLayer *ml, void *context) {
 #ifdef PBL_MICROPHONE
 	if(options_task_actions_position() == TaskActionsPositionNone)
 		return 1;
-	else if(ts_count > 0 && ts_count == ts_max_count)
+	else
 		return 2; // tasks + actions
 #endif
 	return 1;
@@ -116,8 +116,8 @@ static uint16_t ts_get_num_rows_cb(MenuLayer *ml, uint16_t section_index, void *
 #ifdef PBL_MICROPHONE
 	int act_section = options_task_actions_position() - 1;
 	/* if -1 (disabled) then will never match */
-	if(section_index == act_section && ts_count > 0 && ts_count == ts_max_count) // actions
-		return 1;
+	if(section_index == act_section) // actions
+		return 2;
 #endif
 
 	// else section is 0 -> main
@@ -202,10 +202,13 @@ static void ts_twoline_cell_draw(GContext *ctx, const Layer *layer, char *title,
 }
 static void ts_draw_row_cb(GContext *ctx, const Layer *cell_layer, MenuIndex *idx, void *context) {
 #ifdef PBL_MICROPHONE
-	if(idx->section == options_task_actions_position() - 1 && ts_count > 0 && ts_count == ts_max_count) {
+	if(idx->section == options_task_actions_position() - 1 ) {
 		// actions
 		// i.e. "Add task" action
-		menu_cell_basic_draw(ctx, cell_layer, "Create Task", NULL, NULL);
+		if( idx->row == 0 )
+			menu_cell_basic_draw(ctx, cell_layer, "Sync", NULL, NULL);
+		else if ( idx->row == 1 )
+			menu_cell_basic_draw(ctx, cell_layer, "Create Task", NULL, NULL);
 		return;
 	}
 #endif
@@ -240,9 +243,16 @@ static void ts_select_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
 	}
 #ifdef PBL_MICROPHONE
 	if(idx->section == options_task_actions_position() - 1) {
-		// actions
-		// create task
-		ts_create_task();
+		// actions		
+		if ( idx->row == 0 )
+		{
+			SentListToPhone();
+		}
+		else if ( idx->row == 1 )
+		{
+			// create task
+			ts_create_task();
+		}
 		return;
 	}
 #endif

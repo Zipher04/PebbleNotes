@@ -152,6 +152,16 @@ bool comm_is_available_silent() {
 //}
 
 void SentListToPhone( void ) {
+	if ( !bluetooth_connection_service_peek() )
+	{
+		sb_show( "offline mode" );
+		return;
+	}
+	if( !comm_js_ready ) {
+		sb_show( "offline mode" ); // show message if needed
+		return;
+	}
+	
 	LOG ( "Sending list" );
 	
 	int listLength = PersistGetListLength();
@@ -316,8 +326,8 @@ static void comm_in_received_handler(DictionaryIterator *iter, void *context) {
 			LOG("JS Ready Callback awaiting, calling");
 			comm_js_ready_cb(comm_js_ready_cb_data);
 		}
-		sb_show("Syncing...");
-		SentListToPhone();
+		//sb_show("Syncing...");
+		//SentListToPhone();
 		return;
 	} else if( code == CODE_SEND_LIST_ACK ) {
 		sb_show("List sent...");
@@ -530,15 +540,10 @@ void comm_deinit() {
 //==========================================================
 
 void TrySyncWithPhone( void ) {
+	ts_show_pebble();
 	if ( !bluetooth_connection_service_peek() )
 	{
-		//offline_read_list_pebble();
-		LOG( "offline mode" );
-		ts_show_pebble();
-		return;
-	}
-	if( !comm_js_ready ) {
-		comm_is_available(); // show message if needed
+		sb_show( "offline mode" );
 		return;
 	}
 }
