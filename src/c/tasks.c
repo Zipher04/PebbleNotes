@@ -31,6 +31,7 @@
 
 static Window *wndTasks;
 static MenuLayer *mlTasks;
+static StatusBarLayer *s_status_bar_layer;
 static GBitmap *bmpTasks[2];
 static GFont menuFont;
 
@@ -306,8 +307,12 @@ void ts_show_detail( int taskIndex )
 
 static void ts_window_load(Window *wnd) {
 	Layer *wnd_layer = window_get_root_layer(wnd);
+	
+	s_status_bar_layer = status_bar_layer_create();
+	
 	GRect bounds = layer_get_bounds(wnd_layer);
-
+	bounds.origin.y += STATUS_BAR_LAYER_HEIGHT;
+	bounds.size.h -= STATUS_BAR_LAYER_HEIGHT;
 	mlTasks = menu_layer_create(bounds);
 	assert_oom(mlTasks, "OOM while creating menu layer");
 	menu_layer_set_callbacks(mlTasks, NULL, (MenuLayerCallbacks) {
@@ -321,9 +326,12 @@ static void ts_window_load(Window *wnd) {
 		.select_long_click = ts_select_long_click_cb,
 	});
 	menu_layer_set_click_config_onto_window(mlTasks, wnd);
-	layer_add_child(wnd_layer, menu_layer_get_layer(mlTasks));
+	
+	layer_add_child( wnd_layer, menu_layer_get_layer(mlTasks));
+	layer_add_child( wnd_layer, status_bar_layer_get_layer(s_status_bar_layer));
 }
 static void ts_window_unload(Window *wnd) {
+	status_bar_layer_destroy( s_status_bar_layer );
 	menu_layer_destroy(mlTasks);
 }
 static void ts_free_items() {
@@ -353,7 +361,7 @@ void ts_init() {
 	LOG("Tasks module init - loading resources...");
 	bmpTasks[0] = gbitmap_create_with_resource(RESOURCE_ID_TASK_UNDONE);
 	bmpTasks[1] = gbitmap_create_with_resource(RESOURCE_ID_TASK_DONE);
-	menuFont = fonts_get_system_font(CUSTOM_FONT);
+	menuFont = fonts_get_system_font(CUSTOM_FONT);	
 	window_stack_push(wndTasks, true);
 	LOG("Tasks module initialized, window is %p", wndTasks);
 }
