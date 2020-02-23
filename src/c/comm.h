@@ -41,6 +41,6 @@ void comm_init();
 void comm_deinit();
 
 void TrySyncWithPhone( void );
-void SentListToPhone( void );
+void SentListToPhone( bool clearOldList );
 
 #endif

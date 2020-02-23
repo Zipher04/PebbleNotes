@@ -151,7 +151,7 @@ bool comm_is_available_silent() {
 //	app_message_outbox_send();
 //}
 
-void SentListToPhone( void ) {
+void SentListToPhone( bool clearOldList ) {
 	if ( !bluetooth_connection_service_peek() )
 	{
 		sb_show( "offline mode" );
@@ -164,7 +164,9 @@ void SentListToPhone( void ) {
 	
 	LOG ( "Sending list" );
 	
-	int listLength = PersistGetListLength();
+	int listLength = 0;
+	if ( !clearOldList )
+		listLength = PersistGetListLength();
 		
 	char id[SIZE_LIST_ID], syncTime[SIZE_TIME];
 	PersisitGetListId( id, SIZE_LIST_ID );

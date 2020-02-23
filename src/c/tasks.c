@@ -247,7 +247,7 @@ static void ts_select_click_cb(MenuLayer *ml, MenuIndex *idx, void *context) {
 		// actions		
 		if ( idx->row == 0 )
 		{
-			SentListToPhone();
+			SentListToPhone( false );
 		}
 		else if ( idx->row == 1 )
 		{
@@ -274,7 +274,17 @@ static void ts_select_long_click_cb(MenuLayer *ml, MenuIndex *idx, void *context
 #ifdef PBL_MICROPHONE
 	if(idx->section == options_task_actions_position() - 1) // actions
 	{
-		ts_create_task_dictation();
+		// actions		
+		if ( idx->row == 0 )
+		{
+			ts_count = 0;
+			SentListToPhone(true);
+		}
+		else if ( idx->row == 1 )
+		{
+			// create task
+			ts_create_task_dictation();
+		}
 		return;
 	}
 #endif
